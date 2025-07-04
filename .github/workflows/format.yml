@@ -2,7 +2,7 @@ name: Format Code
 
 on:
     push:
-        branches: [main]
+        branches: [master]
 
 jobs:
     format:
