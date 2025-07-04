@@ -1,33 +1,40 @@
 {
-  "name": "onetimesecret",
-  "version": "1.0.0",
-  "description": "the messages automatic destroys ",
-  "keywords": [
-    "secret",
-    "message"
-  ],
-  "homepage": "https://github.com/ThienND04/OneTimeSecret#readme",
-  "bugs": {
-    "url": "https://github.com/ThienND04/OneTimeSecret/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ThienND04/OneTimeSecret.git"
-  },
-  "license": "ISC",
-  "author": "ThienND04",
-  "type": "commonjs",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "dotenv": "^17.0.1",
-    "express": "^5.1.0",
-    "mongoose": "^8.16.1",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "morgan": "^1.10.0"
-  }
+    "name": "onetimesecret",
+    "version": "1.0.0",
+    "description": "the messages automatic destroys ",
+    "keywords": [
+        "secret",
+        "message"
+    ],
+    "homepage": "https://github.com/ThienND04/OneTimeSecret#readme",
+    "bugs": {
+        "url": "https://github.com/ThienND04/OneTimeSecret/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ThienND04/OneTimeSecret.git"
+    },
+    "license": "ISC",
+    "author": "ThienND04",
+    "type": "commonjs",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon --inspect --env-file=.env index.js",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "prettier --write ."
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^17.0.1",
+        "express": "^5.1.0",
+        "mongoose": "^8.16.1",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1",
+        "uuid": "^11.1.0"
+    },
+    "devDependencies": {
+        "morgan": "^1.10.0",
+        "nodemon": "^3.1.10",
+        "prettier": "^3.6.2"
+    }
 }

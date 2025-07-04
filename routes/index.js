@@ -1,7 +1,7 @@
+const secretRoutes = require('./secretRoutes');
 
-
-const route = (app) => {
-    // app.route("/", null);
+function Route(app) {
+    app.use('/api/secret', secretRoutes);
 }
 
-module.exports = route;
+module.exports = Route;
