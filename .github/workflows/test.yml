@@ -33,5 +33,5 @@ jobs:
 
       - name: Run tests
         env:
-          MONGODB_URI: mongodb://localhost:27017/secretdb
+          MONGO_URI: mongodb://localhost:27017/secretdb
         run: npm run test
