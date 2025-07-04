@@ -21,7 +21,8 @@
 	"scripts": {
 		"start": "nodemon --inspect --env-file=.env index.js",
 		"test": "jest --detectOpenHandles",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"workflow": "sudo act"
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",

@@ -3,11 +3,10 @@ name: Run Tests
 on:
   push:
     branches:
-      - main
-      - dev
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   test:
@@ -18,7 +17,7 @@ jobs:
         image: mongo:6
         ports:
           - 27017:27017
-        options: --quiet
+        # options: --quiet
 
     steps:
       - name: Checkout code
@@ -35,4 +34,4 @@ jobs:
       - name: Run tests
         env:
           MONGODB_URI: mongodb://localhost:27017/secretdb
-        run: npm test
+        run: npm run test
