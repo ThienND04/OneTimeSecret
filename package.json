@@ -26,5 +26,8 @@
     "express": "^5.1.0",
     "mongoose": "^8.16.1",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "morgan": "^1.10.0"
   }
 }
