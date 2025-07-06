@@ -1,0 +1,17 @@
+openapi: 3.0.0
+info:
+  title: 1-Time Secret API
+  version: 1.0.0
+  description: API gửi nội dung bí mật chỉ đọc một lần
+servers:
+  - url: http://localhost:3000/api
+
+paths:
+  /secret:
+    $ref: './paths/secret.yaml'
+  /secret/{id}:
+    $ref: './paths/getSecret.yaml'
+
+components:
+  schemas:
+    $ref: './components/schemas.yaml'

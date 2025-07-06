@@ -1,0 +1,35 @@
+SecretCreate:
+  type: object
+  properties:
+    content:
+      type: string
+      example: Đây là nội dung bí mật
+    password:
+      type: string
+      example: 123456
+  required:
+    - content
+
+SecretCreated:
+  type: object
+  properties:
+    message:
+      type: string
+      example: Secret created
+    accessUrl:
+      type: string
+      example: http://localhost:3000/api/secret/abc123xyz
+
+SecretReadPassword:
+  type: object
+  properties:
+    password:
+      type: string
+      example: 123456
+
+SecretContent:
+  type: object
+  properties:
+    content:
+      type: string 
+      example: Đây là nội dung bí mật

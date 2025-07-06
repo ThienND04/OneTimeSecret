@@ -57,6 +57,7 @@ class SecretController {
         }
 
         secret.read = true;
+        secret.readAt = new Date();
         await secret.save();
 
         res.status(200).json({ content: secret.content });
