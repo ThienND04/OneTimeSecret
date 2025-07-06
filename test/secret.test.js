@@ -79,7 +79,7 @@ describe('Secret API with password', () => {
         expect(res.body).toHaveProperty('content', 'This is a secret with password');
     });
 
-    test('should return 10 for already viewed', async () => {
+    test('should return 410 for already viewed', async () => {
         const res = await request(app)
             .get(`/api/secret/${secretIdWithPassword}`)
             .send({ password: 'testpassword' });
