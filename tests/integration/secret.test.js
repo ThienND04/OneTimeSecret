@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app');
+const app = require('../../app');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -35,6 +35,7 @@ describe('Secret API', () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('content', 'This is a test secret');
+        expect(res.body).toHaveProperty('is_client_encrypted', false);
     });
 
     test('should return 410 when reading the secret again', async () => {
@@ -68,6 +69,15 @@ describe('Secret API with password', () => {
 
         expect(res.statusCode).toBe(403);
         expect(res.body.message).toMatch(/incorrect password/i);
+    });
+
+    test('should return 401 for missing password', async () => {
+        const res = await request(app)
+            .get(`/api/secret/${secretIdWithPassword}`)
+            .send();
+
+        expect(res.statusCode).toBe(401);
+        expect(res.body.message).toMatch('Password is required to access this secret');
     });
 
     test('should read the secret with correct password', async () => {

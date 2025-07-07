@@ -21,6 +21,8 @@
 	"scripts": {
 		"start": "nodemon --inspect --env-file=.env index.js",
 		"test": "jest --detectOpenHandles",
+		"test:unit": "jest tests/unit --detectOpenHandles",
+		"test:integration": "jest tests/integration --detectOpenHandles",
 		"format": "prettier --write .",
 		"merge-swagger": "swagger-cli bundle swagger/swagger.yaml -o swagger/bundled.yaml -t yaml",
 		"workflow": "sudo act"
@@ -28,6 +30,7 @@
 	"dependencies": {
 		"bcrypt": "^6.0.0",
 		"cors": "^2.8.5",
+		"crypto-js": "^4.2.0",
 		"dotenv": "^17.0.1",
 		"express": "^5.1.0",
 		"mongoose": "^8.16.1",
@@ -35,7 +38,8 @@
 		"swagger-jsdoc": "^6.2.8",
 		"swagger-ui-express": "^5.0.1",
 		"uuid": "^11.1.0",
-		"yamljs": "^0.3.0"
+		"yamljs": "^0.3.0",
+		"zod": "^3.25.75"
 	},
 	"devDependencies": {
 		"jest": "^30.0.4",
