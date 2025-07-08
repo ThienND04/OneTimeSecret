@@ -65,7 +65,8 @@ describe('Secret API with password', () => {
     test('should return 403 for incorrect password', async () => {
         const res = await request(app)
             .get(`/api/secret/${secretIdWithPassword}`)
-            .send({ password: 'wrongpassword' });
+            .query({ password: 'wrongpassword' })
+            .send();
 
         expect(res.statusCode).toBe(403);
         expect(res.body.message).toMatch(/incorrect password/i);
@@ -83,7 +84,8 @@ describe('Secret API with password', () => {
     test('should read the secret with correct password', async () => {
         const res = await request(app)
             .get(`/api/secret/${secretIdWithPassword}`)
-            .send({ password: 'testpassword' });
+            .query({ password: 'testpassword' })
+            .send();
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('content', 'This is a secret with password');
@@ -92,7 +94,8 @@ describe('Secret API with password', () => {
     test('should return 410 for already viewed', async () => {
         const res = await request(app)
             .get(`/api/secret/${secretIdWithPassword}`)
-            .send({ password: 'testpassword' });
+            .query({ password: 'testpassword' })
+            .send();
 
         expect(res.statusCode).toBe(410);
         expect(res.body).toHaveProperty('message', 'Secret already viewed and destroyed');

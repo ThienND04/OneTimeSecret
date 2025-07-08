@@ -57,15 +57,15 @@ class SecretController {
         try {
             const { id } = req.params;
 
-            const parsedBody = getSecretSchema.safeParse(req.body || {});
-            if (!parsedBody.success) {
-                console.error('Validation error:', parsedBody.error);
+            const parsedQuery = getSecretSchema.safeParse(req.query || {});
+            if (!parsedQuery.success) {
+                console.error('Validation error:', parsedQuery.error);
                 return res.status(400).json({
                     message: 'Invalid request data',
-                    errors: parsedBody.error.errors.map(err => err.message)
+                    errors: parsedQuery.error.errors.map(err => err.message)
                 });
             }
-            const { password } = parsedBody.data || {};
+            const { password } = parsedQuery.data || {};
 
             const secret = await Secret.findOne({ id });
             if (!secret)
