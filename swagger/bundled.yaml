@@ -25,27 +25,47 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecretCreated'
         '400':
-          description: Thiếu nội dung
+          description: Invalid request data
+        '500':
+          description: Internal server error
   '/secret/{id}':
-    post:
-      summary: Lay một secret
+    get:
+      summary: Lấy một secret
       tags:
         - Secret
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SecretCreate'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID của secret cần lấy
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: false
+          description: Mật khẩu để truy cập secret (nếu có)
+          schema:
+            type: string
+            example: '123456'
       responses:
         '201':
-          description: Secret được tạo thành công
+          description: Nhận Secret thành công
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SecretCreated'
+                $ref: '#/components/schemas/SecretContent'
         '400':
-          description: Thiếu nội dung
+          description: Invalid request data
+        '401':
+          description: Password is required to access this secret
+        '403':
+          description: Invalid password
+        '404':
+          description: Secret not found or already viewed
+        '410':
+          description: Secret already viewed and destroyed
+        '500':
+          description: Internal server error
 components:
   schemas:
     SecretCreate:
@@ -57,6 +77,10 @@ components:
         password:
           type: string
           example: 123456
+        is_client_encrypted:
+          type: boolean
+          default: false
+          example: false
       required:
         - content
     SecretCreated:
@@ -67,16 +91,13 @@ components:
           example: Secret created
         accessUrl:
           type: string
-          example: 'http://localhost:3000/api/secret/abc123xyz'
-    SecretReadPassword:
-      type: object
-      properties:
-        password:
-          type: string
-          example: 123456
+          example: 'http://localhost:3000/api/secret/42a6ff49-cs23-1312-213c-d67328a1c4f2'
     SecretContent:
       type: object
       properties:
         content:
           type: string
           example: Đây là nội dung bí mật
+        is_client_encrypted:
+          type: boolean
+          example: false
