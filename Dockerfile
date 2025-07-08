@@ -1,3 +1,4 @@
+
 # syntax = docker/dockerfile:1
 
 # Adjust NODE_VERSION as desired
@@ -27,13 +28,11 @@ RUN npm install
 # Copy application code
 COPY . .
 
+COPY nginx/default.conf /etc/nginx/sites-enabled/default
 
-# Final stage for app image
-FROM base
+# Cổng mặc định mà Fly sẽ expose
+EXPOSE 8080
 
-# Copy built application
-COPY --from=build /app /app
+# Chạy nginx + app
+CMD bash -c "service nginx start && node server.js"
 
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD [ "npm", "run", "start" ]
