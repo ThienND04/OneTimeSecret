@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const morgan = require('morgan');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Route = require('./routes/index');
@@ -9,7 +8,10 @@ const swaggerUi = require('swagger-ui-express');
 const rateLimiter = require('./middlewares/rateLimiter');
 
 const app = express();
-app.use(morgan('combined'));
+if (process.env.NODE_ENV !== 'production') {
+    const morgan = require('morgan');
+    app.use(morgan('dev'));
+}
 app.use(cors());
 
 app.use(express.json({ limit: '10kb' }));
