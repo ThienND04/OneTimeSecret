@@ -19,7 +19,8 @@
 	"type": "commonjs",
 	"main": "index.js",
 	"scripts": {
-		"start": "nodemon --inspect --env-file=.env index.js",
+		"start": "node --inspect index.js",
+		"dev": "nodemon --inspect --env-file=.env index.js",
 		"test": "jest --detectOpenHandles",
 		"test:unit": "jest tests/unit --detectOpenHandles",
 		"test:integration": "jest tests/integration --detectOpenHandles --verbose",
@@ -43,6 +44,7 @@
 		"zod": "^3.25.75"
 	},
 	"devDependencies": {
+		"@flydotio/dockerfile": "^0.7.10",
 		"jest": "^30.0.4",
 		"morgan": "^1.10.0",
 		"nodemon": "^3.1.10",
