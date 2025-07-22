@@ -6,6 +6,7 @@ const Route = require('./routes/index');
 const swaggerDocument = require('./swagger');
 const swaggerUi = require('swagger-ui-express');
 const rateLimiter = require('./middlewares/rateLimiter');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 if (process.env.NODE_ENV !== 'production') {
@@ -22,7 +23,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(rateLimiter);
-
 Route(app);
+app.use(errorHandler);
+
 
 module.exports = app;

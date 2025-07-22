@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./cron/cleanupJob');
 const db = require('./config/db');
 const app = require('./app');
 

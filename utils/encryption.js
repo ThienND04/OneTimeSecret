@@ -2,7 +2,7 @@ var CryptoJS = require("crypto-js");
 
 
 function encryptText(text) {
-    console.log('Encrypting text:', text);
+    // console.log('Encrypting text:', text);
     const iv = CryptoJS.lib.WordArray.random(16);
     const key = CryptoJS.SHA256(process.env.SECRET_KEY || 'emancomchua');
     const encrypted = CryptoJS.AES.encrypt(
