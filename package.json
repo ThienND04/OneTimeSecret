@@ -21,9 +21,9 @@
 	"scripts": {
 		"start": "node --inspect index.js",
 		"dev": "nodemon --inspect --env-file=.env index.js",
-		"test": "jest --detectOpenHandles",
-		"test:unit": "jest tests/unit --detectOpenHandles",
-		"test:integration": "jest tests/integration --detectOpenHandles --verbose",
+		"test": "NODE_ENV=test jest --detectOpenHandles",
+		"test:unit": "NODE_ENV=test jest tests/unit --detectOpenHandles",
+		"test:integration": "NODE_ENV=test jest tests/integration --detectOpenHandles --verbose",
 		"format": "prettier --write .",
 		"merge-swagger": "swagger-cli bundle swagger/swagger.yaml -o swagger/bundled.yaml -t yaml",
 		"workflow": "sudo act"
@@ -36,6 +36,9 @@
 		"express": "^5.1.0",
 		"express-rate-limit": "^7.5.1",
 		"mongoose": "^8.16.1",
+		"multer": "^2.0.1",
+		"multer-storage-cloudinary": "^4.0.0",
+		"node-cron": "^4.2.1",
 		"swagger-cli": "^4.0.4",
 		"swagger-jsdoc": "^6.2.8",
 		"swagger-ui-express": "^5.0.1",
