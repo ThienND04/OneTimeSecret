@@ -9,6 +9,7 @@ class SecretController {
     async createSecret(req, res) {
         try {
             console.log('Creating a new secret');
+            console.log('Request body:', req.body);
             const parsedBody = createSecretSchema.safeParse(req.body || {});
             if (!parsedBody.success) {
                 console.error('Validation error:', parsedBody.error);
@@ -32,9 +33,19 @@ class SecretController {
                 password_hash = await bcrypt.hash(password, saltRounds);
             }
 
+            console.log('Files:', req.files);
+
+            const files = req.files ? req.files.map(file => ({
+                url: file.path || '',
+                originalName: file.originalname,
+                mimeType: file.mimetype,
+                filename: file.filename
+            })) : [];
+
             const secret = new Secret({ 
                 id, 
                 encrypted_content: encryptedContent,
+                files,
                 iv, 
                 is_client_encrypted,
                 password_hash 
@@ -94,6 +105,7 @@ class SecretController {
 
             res.status(200).json({ 
                 content: decryptText(secret.encrypted_content, secret.iv), 
+                files: secret.files,
                 is_client_encrypted: secret.is_client_encrypted 
             });
         }
