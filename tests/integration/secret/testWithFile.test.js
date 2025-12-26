@@ -30,7 +30,7 @@ afterAll(async () => {
     console.log('Closing MongoDB connection...');
     await mongoose.connection.close();
 
-    fs.rmdirSync(path.join(__dirname, '../../..', 'tmp_uploads'), { recursive: true, force: true });
+    fs.rmSync(path.join(__dirname, '../../..', 'tmp_uploads'), { recursive: true, force: true });
 });
 
 afterEach(() => {
