@@ -7,15 +7,18 @@ const swaggerDocument = require('./swagger');
 const swaggerUi = require('swagger-ui-express');
 const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
+const {logger} = require('./config/logger');
+const morgan = require('morgan');
 
 const app = express();
+
+console .log('Environment:', process.env.NODE_ENV);
 if (process.env.NODE_ENV !== 'production') {
-    const morgan = require('morgan');
-    app.use(morgan('dev'));
+    app.use(morgan('short', { stream: logger.stream }));
 }
 app.use(cors());
 
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '10kb' })); 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

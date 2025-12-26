@@ -8,8 +8,8 @@ class SecretController {
     // [POST] /api/secret
     async createSecret(req, res) {
         try {
-            console.log('Creating a new secret');
-            console.log('Request body:', req.body);
+            // console.log('Creating a new secret');
+            // console.log('Request body:', req.body);
             const parsedBody = createSecretSchema.safeParse(req.body || {});
             if (!parsedBody.success) {
                 console.error('Validation error:', parsedBody.error);
@@ -33,7 +33,7 @@ class SecretController {
                 password_hash = await bcrypt.hash(password, saltRounds);
             }
 
-            console.log('Files:', req.files);
+            // console.log('Files:', req.files);
 
             const files = req.files ? req.files.map(file => ({
                 url: file.path || '',
