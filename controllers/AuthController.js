@@ -1,37 +1,25 @@
-const { regesterSchema, loginSchema } = require('../schemas/authSchemas');
-const User = require('../models/User');
+const userService = require('../services/userService');
+const catchAsync = require('../utils/catchAsync');
+const httpStatus = require('http-status');
 
-class AuthController {
-    async login(req, res) {
+const register = catchAsync(async (req, res) => {
+    const user = await userService.createUser(req.body);
+    res.status(httpStatus.CREATED).send({ user, tokens });
+});
 
-    }
+const login = catchAsync(async (req, res) => {
+    // Implement login logic here
+    res.status(200).json({ message: 'Login successful' });
+});
 
-    async register(req, res) {
-        const parsedBody = regesterSchema.safeParse(req.body);
-        if (!parsedBody.success) {
-            return res.status(400).json({ errors: parsedBody.error.errors });
-        }
-        console.log(parsedBody.data);
+const logout = catchAsync(async (req, res) => {
+    // Implement logout logic here
+    res.status(200).json({ message: 'Logout successful' });
+});
 
-        const existingUser = await User.findOne({ $or: [{ userName }, { email }] });
-        if (existingUser) {
-            return res.status(409).json({ message: 'Username or email already in use' });
-        }
+const refreshToken = catchAsync(async (req, res) => {
+    // Implement token refresh logic here
+    res.status(200).json({ message: 'Token refreshed successfully' });
+}); 
 
-        const newUser = new User(parsedBody.data);
-        await newUser.save();
-
-        return res.status(201).json({ message: 'User registered successfully' });
-
-    }
-
-    async logout(req, res) {
-
-    }
-
-    async getProfile(req, res) {
-
-    }
-}
-
-module.exports = new AuthController();
+module.exports = {register, login, logout, refreshToken};

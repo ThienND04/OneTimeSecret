@@ -1,5 +1,5 @@
 {
-    "watch": ["index.js", "routes/", "controllers/", "utils/", "validators/", "middlewares", "swagger/", "services/", "config/", "cron"],
+    "watch": ["index.js", "routes/", "controllers/", "utils/", "validators/", "middlewares", "swagger/", "services/", "config/", "models", "cron"],
     "ignore": ["swagger/bundled.yaml"],
     "ext": "js,yaml",
     "execMap": {
