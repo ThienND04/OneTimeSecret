@@ -4,9 +4,6 @@ const validator = require('validator');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-    id: { 
-        type: String, unique: true 
-    },
     userName: { 
         type: String, 
         required: true,
@@ -47,8 +44,8 @@ userSchema.statics.isEmailExist = async function(email) {
 }
 
 userSchema.methods.isPasswordMatch = async function(password) {
-    const user = this;
-    return await bcrypt.compare(password, user.password);
+    console.log('Comparing password:', password, 'with hash:', this.password);
+    return bcrypt.compare(password, this.password);
 }
 
 userSchema.pre('save', async function(next) {
