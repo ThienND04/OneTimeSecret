@@ -4,6 +4,7 @@ const httpStatus = require('http-status');
 const tokenService = require('./tokenService');
 const Token = require('../models/Token');
 const { TokenType } = require('../config/tokens');
+const userService = require('./userService');
 
 const loginUser  = async (email, password) => {
     const user = await User.findOne({email: email.toLowerCase()});
@@ -24,12 +25,13 @@ const logoutUser = async (refreshToken) => {
 
 const refreshAuth = async (refreshToken) => {
     try {
-        const refreshTokenDoc = await tokenService.verifyToken(refreshToken, tokenTypes.REFRESH);
-        const user = await userService.getUserById(refreshTokenDoc.user);
+        const refreshTokenDoc = await tokenService.verifyToken(refreshToken, TokenType.REFRESH);
+        console.log('Token Doc: ', refreshTokenDoc);
+        const user = await userService.getUserById(refreshTokenDoc.userId);
         if (!user) {
             throw new Error();
         }
-        await refreshTokenDoc.remove();
+        await refreshTokenDoc.deleteOne();
         return tokenService.generateAuthTokens(user);
     } catch (error) {
         throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Please authenticate');
@@ -38,5 +40,6 @@ const refreshAuth = async (refreshToken) => {
 
 module.exports = {
     loginUser, 
-    logoutUser
+    logoutUser,
+    refreshAuth
 };

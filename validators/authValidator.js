@@ -11,20 +11,26 @@ const registerSchema = {
 
 const loginSchema = {
     body: z.strictObject({
-        identifier: z.string().min(1, 'Please provide a username or email'),
+        email: z.string().email('Please provide a valid email'),
         password: z.string().min(6, 'Password must be at least 6 characters long')
     })
 };
 
 const logoutSchema = z.strictObject({
-    
+    body: z.strictObject({
+        refreshToken: z.string()
+    })
 });
 
 const refreshTokenSchema = z.strictObject({
-    
+    body: z.strictObject({
+        refreshToken: z.string()
+    })
 });
 
 module.exports = {
     registerSchema,
-    loginSchema
+    loginSchema,
+    logoutSchema,
+    refreshTokenSchema
 };

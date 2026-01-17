@@ -11,7 +11,7 @@ const validate = (schema) => (req, res, next) => {
             acc[key] = validSchema[key].parse(object[key]);
             return acc;
         }, {});
-        console.log('Validation successful, parsed value:', value);
+        // console.log('Validation successful, parsed value:', value);
     } catch (error) {
         const errorMessage = error.errors.map((err) => err.message).join(', ');
         return next(new ApiError(httpStatus.default.BAD_REQUEST, `Validation error: ${errorMessage}`));
