@@ -1,12 +1,11 @@
 {
-    "watch": ["index.js", "routes/", "controllers/", "utils/", "validators/", "middlewares", "swagger/", "services/", "config/", "models", "cron"],
+    "watch": ["./src/*.js", "routes/", "controllers/", "utils/", "validators/", "middlewares", "docs/", "services/", "config/", "models", "cron"],
     "ignore": ["swagger/bundled.yaml"],
     "ext": "js,yaml",
     "execMap": {
       "js": "node"
     },
     "events": {
-      "restart": "swagger-cli bundle swagger/swagger.yaml -o swagger/bundled.yaml --type yaml"
     }
   }
   

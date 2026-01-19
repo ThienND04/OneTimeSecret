@@ -19,8 +19,8 @@
 	"type": "commonjs",
 	"main": "index.js",
 	"scripts": {
-		"start": "node --inspect index.js",
-		"dev": "NODE_ENV=dev nodemon --inspect --env-file=.env  index.js",
+		"start": "node --inspect src/index.js",
+		"dev": "NODE_ENV=dev nodemon --inspect --env-file=.env  src/index.js",
 		"test": "NODE_ENV=test jest --detectOpenHandles",
 		"test:unit": "NODE_ENV=test jest tests/unit --detectOpenHandles",
 		"test:integration": "NODE_ENV=test jest tests/integration --detectOpenHandles --verbose",
