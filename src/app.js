@@ -2,8 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const Route = require('./routes/index');
-const swaggerDocument = require('./swagger');
+const routes = require('./routes/index');
 const swaggerUi = require('swagger-ui-express');
 const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
@@ -23,11 +22,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+if (process.env.NODE_ENV === 'production') {
+    app.use(rateLimiter);
+}
 
-app.use(rateLimiter);
-Route(app);
+app.use('/api', routes);
 app.use(errorHandler);
-
 
 module.exports = app;
