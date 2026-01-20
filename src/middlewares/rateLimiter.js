@@ -1,5 +1,10 @@
 const rateLimit = require('express-rate-limit');
 
+/**
+ * Rate limiter middleware to prevent abuse and DDoS attacks
+ * Limits requests to 15 per minute per IP address
+ * @type {import('express-rate-limit').RateLimitRequestHandler}
+ */
 const rateLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 15, 

@@ -1,117 +1,88 @@
+const httpStatus = require('http-status');
 const { v4: uuidv4 } = require('uuid');
 const Secret = require('../models/Secret');
 const bcrypt = require('bcrypt');
-const {encryptText, decryptText} = require('../utils/encryption'); 
-const {createSecretSchema, getSecretSchema} = require('../validators/secretValidator');
-const { get } = require('mongoose');
+const { encryptText, decryptText } = require('../utils/encryption');
+const catchAsync = require('../utils/catchAsync');
+const ApiError = require('../utils/apiError');
 
-const createSecret = async (req, res) => {
-    try {
-        // console.log('Creating a new secret');
-        // console.log('Request body:', req.body);
-        const parsedBody = createSecretSchema.safeParse(req.body || {});
-        if (!parsedBody.success) {
-            console.error('Validation error:', parsedBody.error);
-            return res.status(400).json({
-                message: 'Invalid request data',
-                errors: parsedBody.error.errors.map(err => err.message)
-            });
-        }
+/**
+ * @desc    Create a new secret
+ * @route   POST /api/secret
+ * @access  Public
+ */
+const createSecret = catchAsync(async (req, res) => {
+    const { content, password, is_client_encrypted } = req.body;
 
-        const { content, password, is_client_encrypted } = parsedBody.data;
-        if (!content)
-            return res.status(400).json({ message: 'Content is required' });
+    const { encryptedContent, iv } = encryptText(content);
+    const id = uuidv4();
 
-        const {encryptedContent, iv} = encryptText(content);
+    const password_hash = password
+        ? await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 8)
+        : null;
 
-        const id = uuidv4();
+    const files = (req.files || []).map(file => ({
+        url: file.path || '',
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        filename: file.filename,
+    }));
 
-        let password_hash = null;
-        if (password) {
-            const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 8;
-            password_hash = await bcrypt.hash(password, saltRounds);
-        }
+    const secret = new Secret({
+        id,
+        encrypted_content: encryptedContent,
+        files,
+        iv,
+        is_client_encrypted,
+        password_hash,
+    });
 
-        // console.log('Files:', req.files);
+    await secret.save();
 
-        const files = req.files ? req.files.map(file => ({
-            url: file.path || '',
-            originalName: file.originalname,
-            mimeType: file.mimetype,
-            filename: file.filename
-        })) : [];
+    res.status(httpStatus.default.CREATED).json({
+        message: 'Secret created',
+        accessUrl: `${req.protocol}://${req.get('host')}/api/secret/${id}`,
+    });
+});
 
-        const secret = new Secret({ 
-            id, 
-            encrypted_content: encryptedContent,
-            files,
-            iv, 
-            is_client_encrypted,
-            password_hash 
-        });
+/**
+ * @desc    Get secret by ID (one-time view)
+ * @route   GET /api/secret/:id
+ * @access  Public
+ */
+const getSecretById = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
 
-        await secret.save();
+    const secret = await Secret.findOne({ id });
 
-        res.status(201).json({
-            message: 'Secret created',
-            accessUrl: `${req.protocol}://${req.get('host')}/api/secret/${id}`
-        });
-    } catch (error) {
-        console.error('Error creating secret:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    if (!secret) {
+        throw new ApiError(httpStatus.default.NOT_FOUND, 'Secret not found or already viewed');
     }
-}
 
-// [GET] /api/secret/:id
-const getSecretById = async (req, res)=> {
-    try {
-        const { id } = req.params;
-
-        const parsedQuery = getSecretSchema.safeParse(req.query || {});
-        if (!parsedQuery.success) {
-            console.error('Validation error:', parsedQuery.error);
-            return res.status(400).json({
-                message: 'Invalid request data',
-                errors: parsedQuery.error.errors.map(err => err.message)
-            });
-        }
-        const { password } = parsedQuery.data || {};
-
-        const secret = await Secret.findOne({ id });
-        if (!secret)
-            return res
-                .status(404)
-                .json({ message: 'Secret not found or already viewed' });
-
-        if (secret.read)
-            return res
-                .status(410)
-                .json({ message: 'Secret already viewed and destroyed' });
-
-        if (secret.password_hash) {
-            if (!password) {
-                return res.status(401).json({ message: 'Password is required to access this secret' });
-            }
-            const match = await bcrypt.compare(password, secret.password_hash);
-            if (!match) {
-                return res.status(403).json({ message: 'Incorrect password' });
-            }
-        }
-
-        secret.read = true;
-        secret.readAt = new Date();
-        await secret.save();
-
-        res.status(200).json({ 
-            content: decryptText(secret.encrypted_content, secret.iv), 
-            files: secret.files,
-            is_client_encrypted: secret.is_client_encrypted 
-        });
+    if (secret.read) {
+        throw new ApiError(httpStatus.default.GONE, 'Secret already viewed and destroyed');
     }
-    catch(error) {
-        console.error('Error retrieving secret:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-} 
 
-module.exports = {getSecretById, createSecret};
+    if (secret.password_hash) {
+        if (!password) {
+            throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Password is required to access this secret');
+        }
+        const isPasswordValid = await bcrypt.compare(password, secret.password_hash);
+        if (!isPasswordValid) {
+            throw new ApiError(httpStatus.default.FORBIDDEN, 'Incorrect password');
+        }
+    }
+
+    secret.read = true;
+    secret.readAt = new Date();
+    await secret.save();
+
+    res.status(httpStatus.default.OK).json({
+        content: decryptText(secret.encrypted_content, secret.iv),
+        files: secret.files,
+        is_client_encrypted: secret.is_client_encrypted,
+    });
+});
+
+module.exports = { getSecretById, createSecret };

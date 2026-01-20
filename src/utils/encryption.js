@@ -1,8 +1,11 @@
 var CryptoJS = require("crypto-js");
 
-
+/**
+ * @desc  Encrypt plain text using AES encryption
+ * @param {string} text - plain text to encrypt
+ * @returns {{ encryptedContent: string, iv: string }} - encrypted content and initialization vector
+ */
 function encryptText(text) {
-    // console.log('Encrypting text:', text);
     const iv = CryptoJS.lib.WordArray.random(16);
     const key = CryptoJS.SHA256(process.env.SECRET_KEY || 'emancomchua');
     const encrypted = CryptoJS.AES.encrypt(
@@ -21,6 +24,12 @@ function encryptText(text) {
     };
 }
 
+/**
+ * @desc Decrypt cipher text using AES decryption
+ * @param {string} cipherTextBase64 - base64 encoded cipher text
+ * @param {string} iv - initialization vector in hex format
+ * @returns {string} - decrypted plain text
+ */
 function decryptText(cipherTextBase64, iv) {
     const cipherText = CryptoJS.enc.Base64.parse(cipherTextBase64);
     const ivHex = CryptoJS.enc.Hex.parse(iv);

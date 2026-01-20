@@ -1,6 +1,10 @@
 const Secret = require('../models/Secret');
 const cloudinary = require('../config/cloudinary');
 
+/**
+ * @desc   Cleanup old secrets that have been read
+ * @return {Promise<void>}
+ */
 async function cleanupOldSecrets() {
     console.log('Starting cleanup of old secrets...');
     const threshold = new Date(Date.now() - 30 * 1000); // delete secrets files older than 30 minutes
