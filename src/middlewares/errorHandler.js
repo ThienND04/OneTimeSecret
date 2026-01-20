@@ -1,3 +1,11 @@
+/**
+ * Express error handling middleware for file upload and general errors
+ * @param {Error} err - The error object
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {void}
+ */
 function errorHandler(err, req, res, next) {
     console.error('Error occurred:', err);
     if (err.code === 'LIMIT_FILE_SIZE') {
