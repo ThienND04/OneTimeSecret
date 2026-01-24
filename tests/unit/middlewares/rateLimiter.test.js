@@ -1,16 +1,13 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
 const config = require('../../../src/config/config');
 
 let app;
 let originalEnv;
 let originalRateLimit;
 
-beforeAll(async () => {
-    console.log('Connecting to MongoDB...');
+beforeAll(() => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'log').mockImplementation(() => {});
-    await mongoose.connect(config.mongoose.url);
     
     originalEnv = config.env;
     originalRateLimit = { ...config.rateLimit };
@@ -22,25 +19,21 @@ beforeAll(async () => {
     
     // Import app AFTER setting config (so rate limiter is initialized with new config)
     // Clear cache to require again
-    delete require.cache[require.resolve('../../src/middlewares/rateLimiter')];
-    delete require.cache[require.resolve('../../src/app')];
+    delete require.cache[require.resolve('../../../src/middlewares/rateLimiter')];
+    delete require.cache[require.resolve('../../../src/app')];
     
     app = require('../../../src/app');
-}, 10000);
+});
 
-afterAll(async () => {
-    console.log('Closing MongoDB connection...');
-    
+afterAll(() => {
     // Restore original config
     config.env = originalEnv;
     config.rateLimit = originalRateLimit;
     
     // Clear cache để lần import sau dùng config gốc
-    delete require.cache[require.resolve('../../src/middlewares/rateLimiter')];
-    delete require.cache[require.resolve('../../src/app')];
-    
-    await mongoose.connection.close();
-}, 10000);
+    delete require.cache[require.resolve('../../../src/middlewares/rateLimiter')];
+    delete require.cache[require.resolve('../../../src/app')];
+});
 
 describe('Rate Limiter Middleware', () => {
     test('should allow requests below the limit', async () => {
