@@ -1,13 +1,13 @@
 const rateLimit = require('express-rate-limit');
+const config = require('../config/config');
 
 /**
  * Rate limiter middleware to prevent abuse and DDoS attacks
- * Limits requests to 15 per minute per IP address
  * @type {import('express-rate-limit').RateLimitRequestHandler}
  */
 const rateLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 15, 
+    windowMs: config.rateLimit.windowMs,
+    max: config.rateLimit.max,
     message: {
         status: 429,
         message: 'Too many requests, please try again later.'

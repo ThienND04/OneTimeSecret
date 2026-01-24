@@ -1,14 +1,11 @@
 const mongoose = require('mongoose');
+const config = require('../config');
 
 async function connect() {
     console.log('Connecting to database...');
-    console.log('Mongo URI:', process.env.MONGO_URI);
+    console.log('Mongo URI:', config.mongoose.url);
     try {
-        await mongoose.connect(process.env.MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            authSource: 'admin'
-        });
+        await mongoose.connect(config.mongoose.url, config.mongoose.options);
         console.log('Database connected successfully');
     } catch (error) {
         console.error('Database connection error:', error);

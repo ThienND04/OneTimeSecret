@@ -17,7 +17,7 @@ const loginUser = async (email, password) => {
     const user = await User.findOne({email: email.toLowerCase()});
 
     if (!user || !(await user.isPasswordMatch(password))) {
-        throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
+        throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Incorrect email or password');
     }
     return user;
 }
@@ -31,7 +31,7 @@ const loginUser = async (email, password) => {
 const logoutUser = async (refreshToken) => {
     const refreshTokenDoc = await Token.findOne({ token: refreshToken, type: TokenType.REFRESH});
     if (!refreshTokenDoc) {
-        throw new ApiError(httpStatus.NOT_FOUND, 'Not found');
+        throw new ApiError(httpStatus.default.NOT_FOUND, 'Not found');
     }
     await refreshTokenDoc.deleteOne();
 }
@@ -45,7 +45,6 @@ const logoutUser = async (refreshToken) => {
 const refreshAuth = async (refreshToken) => {
     try {
         const refreshTokenDoc = await tokenService.verifyToken(refreshToken, TokenType.REFRESH);
-        console.log('Token Doc: ', refreshTokenDoc);
         const user = await userService.getUserById(refreshTokenDoc.userId);
         if (!user) {
             throw new Error();

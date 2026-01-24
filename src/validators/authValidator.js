@@ -14,7 +14,9 @@ const registerSchema = {
         userName: z.string().min(3, 'Username must be at least 3 characters long'),
         gender: z.enum(['male', 'female', 'helicopter']),
         email: z.string().email('Invalid email address'),
-        password: z.string().min(6, 'Password must be at least 6 characters long')
+        password: z.string()
+            .min(6, 'Password must be at least 6 characters long')
+            .max(25, 'Password must be at most 25 characters long')
     })
 };
 
@@ -38,11 +40,11 @@ const loginSchema = {
  * @property {Object} body - Request body
  * @property {string} body.refreshToken - Refresh token to invalidate
  */
-const logoutSchema = z.strictObject({
+const logoutSchema = {
     body: z.strictObject({
         refreshToken: z.string()
     })
-});
+};
 
 /**
  * Validation schema for refreshing authentication tokens
@@ -50,11 +52,11 @@ const logoutSchema = z.strictObject({
  * @property {Object} body - Request body
  * @property {string} body.refreshToken - Valid refresh token
  */
-const refreshTokenSchema = z.strictObject({
+const refreshTokenSchema = {
     body: z.strictObject({
         refreshToken: z.string()
     })
-});
+};
 
 module.exports = {
     registerSchema,

@@ -19,11 +19,11 @@
 	"type": "commonjs",
 	"main": "index.js",
 	"scripts": {
-		"start": "node --inspect src/index.js",
-		"dev": "NODE_ENV=dev nodemon --inspect --env-file=.env  src/index.js",
+		"start": "NODE_ENV=production node src/index.js",
+		"dev": "NODE_ENV=development nodemon --inspect src/index.js",
 		"test": "NODE_ENV=test jest --detectOpenHandles",
 		"test:unit": "NODE_ENV=test jest tests/unit --detectOpenHandles",
-		"test:integration": "NODE_ENV=test jest tests/integration --detectOpenHandles --verbose",
+		"test:integration": "NODE_ENV=test jest tests/integration --detectOpenHandles --silent",
 		"format": "prettier --write .",
 		"merge-swagger": "swagger-cli bundle swagger/swagger.yaml -o swagger/bundled.yaml -t yaml",
 		"workflow": "sudo act"
@@ -54,6 +54,7 @@
 	"devDependencies": {
 		"@flydotio/dockerfile": "^0.7.10",
 		"jest": "^30.0.4",
+		"jest-extended": "^7.0.0",
 		"morgan": "^1.10.1",
 		"nodemon": "^3.1.10",
 		"prettier": "^3.6.2",

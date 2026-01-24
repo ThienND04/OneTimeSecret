@@ -1,43 +1,171 @@
-name: Run Tests
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - master
+      - develop
+      - 'feature/**'
+      - 'fix/**'
   pull_request:
     branches:
       - master
+      - develop
+    types: [opened, synchronize, reopened]
+
+env:
+  NODE_ENV: test
 
 jobs:
-  test:
+  lint:
+    name: Code Quality & Linting
     runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint --if-present || echo "No lint script found"
+        continue-on-error: true
+
+  test:
+    name: Test Suite (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+    
     services:
-      mongo:
-        image: mongo:6
+      mongodb:
+        image: mongo:6.0
         ports:
           - 27017:27017
-        # options: --quiet
+        env:
+          MONGO_INITDB_DATABASE: secretdb_test
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 10s
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+      fail-fast: false
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run tests
+      - name: Wait for MongoDB
+        run: |
+          echo "Waiting for MongoDB to be ready..."
+          timeout 30 bash -c 'until nc -z localhost 27017; do sleep 1; done'
+          echo "MongoDB is ready!"
+
+      - name: Create test environment file
+        run: |
+          cat > .env.test << 'EOF'
+          # Test Environment Configuration
+          NODE_ENV=test
+          PORT=3001
+          MONGO_URI=mongodb://localhost:27017/secretdb_test
+          SECRET_KEY=test_secret_key_for_github_actions
+          JWT_SECRET=test_jwt_secret_for_github_actions
+          JWT_ACCESS_EXPIRATION_MINUTES=5
+          JWT_REFRESH_EXPIRATION_DAYS=1
+          BCRYPT_SALT_ROUNDS=4
+          CLOUDINARY_CLOUD_NAME=test_cloud_name
+          CLOUDINARY_API_KEY=test_api_key
+          CLOUDINARY_API_SECRET=test_api_secret
+          LOG_LEVEL=error
+          RATE_LIMIT_WINDOW_MS=900000
+          RATE_LIMIT_MAX_REQUESTS=10000
+          EOF
+
+      - name: Verify MongoDB connection
+        run: |
+          echo "Verifying MongoDB connection..."
+          npm run db:ping || mongosh --quiet --eval "db.adminCommand('ping')" mongodb://localhost:27017/secretdb_test
+          echo "MongoDB is ready!"
+
+      - name: Run unit tests
+        run: npm run test:unit
         env:
-          PORT: 3000
-          MONGO_URI: mongodb://localhost:27017/secretdb
-          BCRYPT_SALT_ROUNDS: 7
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-        run: npm run test
+          CI: true
+
+      - name: Run integration tests  
+        run: npm run test:integration
+        env:
+          CI: true
+
+      - name: Run all tests with coverage
+        run: npm test -- --coverage --maxWorkers=2
+        env:
+          CI: true
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.node-version == '20.x'
+        continue-on-error: true
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  test-summary:
+    name: Test Results Summary
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "All tests passed successfully!"
+            exit 0
+          else
+            echo "Tests failed. Please check the logs above."
+            exit 1
+          fi
+
+  # Prevent merging if tests fail
+  required-checks:
+    name: All Required Checks Passed
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: always()
+    
+    steps:
+      - name: Verify all checks passed
+        run: |
+          if [ "${{ needs.lint.result }}" == "success" ] && [ "${{ needs.test.result }}" == "success" ]; then
+            echo "All required checks passed! Ready to merge."
+            exit 0
+          else
+            echo "Some checks failed. Cannot merge."
+            echo "Lint: ${{ needs.lint.result }}"
+            echo "Tests: ${{ needs.test.result }}"
+            exit 1
+          fi

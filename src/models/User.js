@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
-const { url, lowercase } = require('zod/v4');
+const { url, lowercase, minLength, maxLength } = require('zod/v4');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+const { toJSON, paginate } = require('./plugins');
 
 const userSchema = new mongoose.Schema({
     userName: { 
@@ -29,13 +30,24 @@ const userSchema = new mongoose.Schema({
     },
     password: { 
         type: String, 
-        required: true 
+        required: true,
+        private: true,
+        minLength: 6,
+        maxLength: 25,
+        validate(value) {
+            if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
+                throw new Error('Password must contain at least one letter and one number');
+            }
+        }
     },
     createdAt: { 
         type: Date, 
         default: Date.now 
     }
 });
+
+userSchema.plugin(toJSON);
+userSchema.plugin(paginate);
 
 userSchema.statics.isEmailExist = async function(email) {
     const user = await this.findOne({ email: email.toLowerCase() });
@@ -44,7 +56,6 @@ userSchema.statics.isEmailExist = async function(email) {
 }
 
 userSchema.methods.isPasswordMatch = async function(password) {
-    console.log('Comparing password:', password, 'with hash:', this.password);
     return bcrypt.compare(password, this.password);
 }
 

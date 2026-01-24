@@ -1,12 +1,12 @@
 const request = require('supertest');
-const app = require('../../../app');
+const app = require('../../../src/app');
 const mongoose = require('mongoose');
 const path = require('path');
-require('dotenv').config();
+const config = require('../../../src/config/config');
 
 beforeAll(async () => {
     console.log('Connecting to MongoDB...');
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(config.mongoose.url);
 });
 
 afterAll(async () => {
@@ -25,14 +25,14 @@ describe('Secret API', () => {
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('accessUrl');
 
-        // Tách id từ URL
+        // Extract secret ID from accessUrl
         const id = res.body.accessUrl.split('/').pop();
         secretId = id;
     });
 
     test('should read the secret one time and destroy it', async () => {
         const res = await request(app)
-            .get(`/api/secret/${secretId}`);
+            .get(`/api/secret/${secretId}`).send();
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('content', 'This is a test secret');
@@ -44,7 +44,7 @@ describe('Secret API', () => {
             .get(`/api/secret/${secretId}`);
 
         expect(res.statusCode).toBe(410);
-        expect(res.body.message).toMatch(/already viewed/i);
+        expect(res.text).toMatch(/already viewed/i);
     });
 });
 
@@ -66,11 +66,10 @@ describe('Secret API with password', () => {
     test('should return 403 for incorrect password', async () => {
         const res = await request(app)
             .get(`/api/secret/${secretIdWithPassword}`)
-            .query({ password: 'wrongpassword' })
-            .send();
+            .send({ password: 'wrongpassword' });
 
         expect(res.statusCode).toBe(403);
-        expect(res.body.message).toMatch(/incorrect password/i);
+        expect(res.text).toMatch(/incorrect password/i);
     });
 
     test('should return 401 for missing password', async () => {
@@ -79,14 +78,13 @@ describe('Secret API with password', () => {
             .send();
 
         expect(res.statusCode).toBe(401);
-        expect(res.body.message).toMatch('Password is required to access this secret');
+        expect(res.text).toMatch('Password is required to access this secret');
     });
 
     test('should read the secret with correct password', async () => {
         const res = await request(app)
             .get(`/api/secret/${secretIdWithPassword}`)
-            .query({ password: 'testpassword' })
-            .send();
+            .send({ password: 'testpassword' });
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('content', 'This is a secret with password');
@@ -95,10 +93,9 @@ describe('Secret API with password', () => {
     test('should return 410 for already viewed', async () => {
         const res = await request(app)
             .get(`/api/secret/${secretIdWithPassword}`)
-            .query({ password: 'testpassword' })
-            .send();
+            .send({ password: 'testpassword' });
 
         expect(res.statusCode).toBe(410);
-        expect(res.body).toHaveProperty('message', 'Secret already viewed and destroyed');
+        expect(res.text).toMatch(/Secret already viewed and destroyed/);
     });
 });

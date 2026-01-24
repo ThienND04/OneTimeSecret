@@ -1,5 +1,10 @@
 # One Time Secret
 
+[![Tests](https://github.com/ThienND04/OneTimeSecret/actions/workflows/test.yml/badge.svg)](https://github.com/ThienND04/OneTimeSecret/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/ThienND04/OneTimeSecret/branch/master/graph/badge.svg)](https://codecov.io/gh/ThienND04/OneTimeSecret)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.x-brightgreen.svg)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 One Time Secret is an API that allows users to securely share sensitive information, such as passwords or private messages, that can only be accessed once.
 
 ## Table of Contents
@@ -70,6 +75,49 @@ Create a .env file in the root directory and configure it as follows:
 This project uses Swagger for interactive API documentation.
 - Swagger UI: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
 
+## Testing
+
+The project has comprehensive test coverage including unit tests and integration tests.
+
+### Run Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run unit tests only
+npm run test:unit
+
+# Run integration tests only
+npm run test:integration
+
+# Run tests with coverage
+npm test -- --coverage
+```
+
+### Test Structure
+
+```
+tests/
+├── unit/                    # Unit tests
+│   ├── middlewares/        # Middleware tests
+│   ├── services/           # Service layer tests
+│   ├── utils/              # Utility function tests
+│   └── validators/         # Validation schema tests
+└── integration/            # Integration tests
+    ├── auth/              # Authentication API tests
+    └── secret/            # Secret API tests
+```
+
+### CI/CD
+
+- ✅ Automated tests run on every push and pull request
+- ✅ MongoDB service automatically provisioned in CI
+- ✅ Tests required to pass before merging to master
+- ✅ Coverage reports generated automatically
+
+See [CI/CD Setup Guide](docs/CI_CD_SETUP.md) for more details.
+
 ##  Security Notes
 - Secrets are encrypted using crypto-js before storage.
 - Passwords and tokens are hashed with bcrypt.
@@ -78,11 +126,13 @@ This project uses Swagger for interactive API documentation.
 - File uploads are handled securely via Cloudinary and Multer.
 
 ## Scripts
-| Script         | Description                     |
-| -------------- | ------------------------------- |
-| `npm run dev`  | Start server with hot reload    |
-| `npm start`    | Start server in production mode |
-| `npm test`     | Run tests (if added)            |
+| Script                    | Description                           |
+| ------------------------- | ------------------------------------- |
+| `npm run dev`            | Start server with hot reload          |
+| `npm start`              | Start server in production mode       |
+| `npm test`               | Run all tests (unit + integration)    |
+| `npm run test:unit`      | Run unit tests only                   |
+| `npm run test:integration` | Run integration tests only          |
 
 ## Author
 Nguyen Duc Thien

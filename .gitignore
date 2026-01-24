@@ -1,3 +1,14 @@
 node_modules
+
+# Environment files (keep .env.example for documentation)
 .env
+.env.development
+.env.test
+.env.production
+.env.local
+.env.*.local
+
+# Keep example file
+!.env.example
+
 logs/*

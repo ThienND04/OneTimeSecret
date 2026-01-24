@@ -27,7 +27,7 @@ const tokenSchema = new mongoose.Schema(
     {
         timestamps: true
     }
-);1
+);
 
 const Token = mongoose.model('Token', tokenSchema);
 
