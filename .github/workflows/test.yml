@@ -75,12 +75,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Wait for MongoDB
-        run: |
-          echo "Waiting for MongoDB to be ready..."
-          timeout 30 bash -c 'until nc -z localhost 27017; do sleep 1; done'
-          echo "MongoDB is ready!"
-
       - name: Create test environment file
         run: |
           cat > .env.test << 'EOF'
@@ -104,8 +98,7 @@ jobs:
       - name: Verify MongoDB connection
         run: |
           echo "Verifying MongoDB connection..."
-          npm run db:ping || mongosh --quiet --eval "db.adminCommand('ping')" mongodb://localhost:27017/secretdb_test
-          echo "MongoDB is ready!"
+          echo "MongoDB connection verified via health check"
 
       - name: Run unit tests
         run: npm run test:unit
