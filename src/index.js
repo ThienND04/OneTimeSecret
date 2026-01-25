@@ -1,9 +1,9 @@
-require('dotenv').config();
+const config = require('./config/config');
 require('./cron/cleanupJob');
 const db = require('./config/db');
 const app = require('./app');
 
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
 
 db.connect();
 

@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const { encryptText, decryptText } = require('../utils/encryption');
 const catchAsync = require('../utils/catchAsync');
 const ApiError = require('../utils/apiError');
+const config = require('../config/config');
 
 /**
  * @desc    Create a new secret
@@ -18,7 +19,7 @@ const createSecret = catchAsync(async (req, res) => {
     const id = uuidv4();
 
     const password_hash = password
-        ? await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS, 10) || 8)
+        ? await bcrypt.hash(password, config.bcrypt.saltRounds)
         : null;
 
     const files = (req.files || []).map(file => ({

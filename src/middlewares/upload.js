@@ -3,14 +3,14 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../config/cloudinary');
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config();
+const config = require('../config/config');
 
-if (process.env.NODE_ENV === 'test' && !fs.existsSync(path.join(__dirname, '..', 'tmp_uploads'))) {
+if (config.env === 'test' && !fs.existsSync(path.join(__dirname, '..', 'tmp_uploads'))) {
 	fs.mkdirSync(path.join(__dirname, '..', 'tmp_uploads'));
 }
 
 const storage = 
-	process.env.NODE_ENV === 'test' ? 
+	config.env === 'test' ? 
 	multer.diskStorage({ // Local storage for testing
 		destination: (req, file, cb) => {
 			cb(null, path.join(__dirname, '..', 'tmp_uploads'));

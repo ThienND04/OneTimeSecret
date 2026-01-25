@@ -2,6 +2,7 @@ const winston = require('winston');
 const path = require('path');
 const fs = require('fs');
 require('winston-daily-rotate-file');
+const config = require('../config');
 
 // Danh sách các key nhạy cảm cần che giấu
 const SENSITIVE_KEYS = ['password', 'secret', 'token', 'apiKey', 'creditCard'];
@@ -54,7 +55,7 @@ const fileFormat = combine(
 );
 
 const logger = winston.createLogger({
-    level: process.env.LOG_LEVEL || 'info',
+    level: config.logging.level,
     format: fileFormat,
     defaultMeta: { service: 'one-time-secret' },
     transports: [
@@ -107,7 +108,7 @@ const logger = winston.createLogger({
 // If we're not in production then log to the `console` with the format:
 // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
 //
-if (process.env.NODE_ENV !== 'production') {
+if (config.env !== 'production') {
     logger.add(new winston.transports.Console({
         format: combine(
             colorize({ all: true }),

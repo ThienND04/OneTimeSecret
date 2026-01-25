@@ -1,4 +1,4 @@
-require('dotenv').config();
+const config = require('./config/config');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -11,8 +11,8 @@ const morgan = require('morgan');
 
 const app = express();
 
-console .log('Environment:', process.env.NODE_ENV);
-if (process.env.NODE_ENV !== 'production') {
+console.log('Environment:', config.env);
+if (config.env !== 'production') {
     app.use(morgan('short', { stream: logger.stream }));
 }
 app.use(cors());
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-if (process.env.NODE_ENV === 'production') {
+if (config.env === 'production') {
     app.use(rateLimiter);
 }
 

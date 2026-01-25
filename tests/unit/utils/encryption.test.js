@@ -1,4 +1,4 @@
-const { encryptText, decryptText } = require('../../utils/encryption');
+const { encryptText, decryptText } = require('../../../src/utils/encryption');
 require('dotenv').config();
 
 describe('Encryption Utils', () => {
@@ -10,11 +10,7 @@ describe('Encryption Utils', () => {
         expect(encryptedContent).toBeDefined();
         expect(iv).toBeDefined();
 
-        console.log('Encrypted content:', encryptedContent);
-        console.log('IV:', iv);
-
         const decrypted = decryptText(encryptedContent, iv);
-        console.log('Decrypted text:', decrypted);
         expect(decrypted).toBe(originalText);
     });
 
@@ -25,11 +21,7 @@ describe('Encryption Utils', () => {
         expect(encryptedContent).toBeDefined();
         expect(iv).toBeDefined();
 
-        console.log('Encrypted content:', encryptedContent);
-        console.log('IV:', iv);
-
         const decrypted = decryptText(encryptedContent, iv);
-        console.log('Decrypted text:', decrypted);
         expect(decrypted).toBe(originalText);
     });
 
@@ -40,23 +32,20 @@ describe('Encryption Utils', () => {
         expect(encryptedContent).toBeDefined();
         expect(iv).toBeDefined();
 
-        console.log('Encrypted content:', encryptedContent);
-        console.log('IV:', iv);
-
         const decrypted = decryptText(encryptedContent, iv);
-        console.log('Decrypted text:', decrypted);
         expect(decrypted).toBe(originalText);
     });
 
-    test('should not return original text with wrong iv', () => {
+    test('should return empty or invalid text when decrypting with wrong iv', () => {
         const originalText = 'dsbcdhsbc';
         const { encryptedContent, iv } = encryptText(originalText);
-        console.log('Encrypted content:', encryptedContent);
-        console.log('IV:', iv);
         const wrongIv = '00000000000000000000000000000000'; 
 
         const decrypted = decryptText(encryptedContent, wrongIv);
-        console.log('Decrypted with wrong IV:', decrypted);
+        
+        // With wrong IV, decryption should produce invalid result
+        // (empty string or garbage data, but not the original text)
         expect(decrypted).not.toBe(originalText);
+        expect(typeof decrypted).toBe('string');
     });
 });

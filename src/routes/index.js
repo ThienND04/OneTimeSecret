@@ -2,6 +2,7 @@ const express = require('express');
 const { api } = require('../config/cloudinary');
 const secretRoute = require('./secretRoute');
 const authRoute = require('./authRoute');
+const config = require('../config/config');
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ defaultRoutes.forEach((route) => {
     router.use(route.path, route.route);
 });
 
-if (process.env.NODE_ENV === 'dev') {
+if (config.env === 'development') {
     devRoutes.forEach((route) => {
         router.use(route.path, route.route);
     });

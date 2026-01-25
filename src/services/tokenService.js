@@ -1,21 +1,24 @@
 const Token = require('../models/Token');
 const jwt = require('jsonwebtoken');
 const {TokenType} = require('../config/tokens');
+const config = require('../config/config');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * Generates a JWT token with the specified parameters
  * @param {string} userId - User ID to encode in token
  * @param {number} expires - Token expiration time in seconds
  * @param {string} type - Token type (access, refresh, etc.)
- * @param {string} [secret=process.env.SECRET_KEY] - Secret key for signing
+ * @param {string} [secret] - Secret key for signing (defaults to config.jwt.secret)
  * @returns {string} Signed JWT token
  */
-const generateToken = (userId, expires, type, secret = process.env.SECRET_KEY) => {
+const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
     const payload = {
         sub: userId,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + expires,
-        type: type
+        type: type,
+        jwti: uuidv4(),
     };
     return jwt.sign(payload, secret);
 }
@@ -45,7 +48,7 @@ const saveToken = async (token, userId, type) => {
  * @throws {Error} If token is invalid or not found in database
  */
 const verifyToken = async (token, type) => {
-    const payload = jwt.verify(token, process.env.SECRET_KEY);
+    const payload = jwt.verify(token, config.jwt.secret);
     const tokenDoc = await Token.findOne({ token, userId: payload.sub, type });
     if (!tokenDoc) {
         throw new Error('Token not found');
