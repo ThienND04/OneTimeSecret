@@ -6,14 +6,16 @@ const { encryptText, decryptText } = require('../utils/encryption');
 const catchAsync = require('../utils/catchAsync');
 const ApiError = require('../utils/apiError');
 const config = require('../config/config');
+const secretService = require('../services/secretService');
+const pick = require('../utils/pick');
 
 /**
  * @desc    Create a new secret
  * @route   POST /api/secret
- * @access  Public
+ * @access  Public (optionally authenticated)
  */
 const createSecret = catchAsync(async (req, res) => {
-    const { content, password, is_client_encrypted } = req.body;
+    const { content, password, is_client_encrypted, title } = req.body;
 
     const { encryptedContent, iv } = encryptText(content);
     const id = uuidv4();
@@ -36,6 +38,8 @@ const createSecret = catchAsync(async (req, res) => {
         iv,
         is_client_encrypted,
         password_hash,
+        userId: req.userId || null,  // From optionalAuth middleware
+        title: title || null
     });
 
     await secret.save();
@@ -75,8 +79,16 @@ const getSecretById = catchAsync(async (req, res) => {
         }
     }
 
+    // Record view in history
+    const viewRecord = {
+        viewedAt: new Date(),
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('user-agent')
+    };
+    
     secret.read = true;
     secret.readAt = new Date();
+    secret.viewHistory.push(viewRecord);
     await secret.save();
 
     res.status(httpStatus.default.OK).json({
@@ -86,4 +98,71 @@ const getSecretById = catchAsync(async (req, res) => {
     });
 });
 
-module.exports = { getSecretById, createSecret };
+/**
+ * @desc    Get user's secrets with pagination and filters
+ * @route   GET /api/secret/me/secrets
+ * @access  Private (authenticated users only)
+ */
+const getUserSecrets = catchAsync(async (req, res) => {
+    const options = pick(req.query, ['page', 'limit', 'status', 'sortBy', 'search']);
+    const result = await secretService.getUserSecrets(req.userId, options);
+
+    res.status(httpStatus.default.OK).json({
+        success: true,
+        data: result.secrets,
+        pagination: result.pagination
+    });
+});
+
+/**
+ * @desc    Get user's secret statistics
+ * @route   GET /api/secret/me/stats
+ * @access  Private (authenticated users only)
+ */
+const getUserStats = catchAsync(async (req, res) => {
+    const stats = await secretService.getUserSecretStats(req.userId);
+
+    res.status(httpStatus.default.OK).json({
+        success: true,
+        data: stats
+    });
+});
+
+/**
+ * @desc    Get secret details for owner
+ * @route   GET /api/secret/me/secrets/:id
+ * @access  Private (authenticated users only)
+ */
+const getSecretDetails = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const secret = await secretService.getSecretDetails(id, req.userId);
+
+    res.status(httpStatus.default.OK).json({
+        success: true,
+        data: secret
+    });
+});
+
+/**
+ * @desc    Revoke an unviewed secret
+ * @route   DELETE /api/secret/me/secrets/:id
+ * @access  Private (authenticated users only)
+ */
+const revokeSecret = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    await secretService.revokeSecret(id, req.userId);
+
+    res.status(httpStatus.default.OK).json({
+        success: true,
+        message: 'Secret revoked successfully'
+    });
+});
+
+module.exports = { 
+    getSecretById, 
+    createSecret,
+    getUserSecrets,
+    getUserStats,
+    getSecretDetails,
+    revokeSecret
+};
