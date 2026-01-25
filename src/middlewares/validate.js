@@ -25,7 +25,11 @@ const validate = (schema) => (req, res, next) => {
         const errorMessage = error.errors.map((err) => err.message).join(', ');
         return next(new ApiError(httpStatus.default.BAD_REQUEST, `Validation error: ${errorMessage}`));
     }
-    Object.assign(req, value);
+    
+    Object.keys(value).forEach((key) => {
+        req[key] = value[key];
+    });
+    
     return next();
 }
 
