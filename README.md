@@ -5,16 +5,16 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.x-brightgreen.svg)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-One Time Secret is an API that allows users to securely share sensitive information, such as passwords or private messages, that can only be accessed once.
+One Time Secret is a full-stack application that allows users to securely share sensitive information, such as passwords or private messages, that can only be accessed once.
 
 ## Table of Contents
 
 - [Features](#features)
 - [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
 - [Security Notes](#security-notes)
 - [License](#license)
 
@@ -26,9 +26,11 @@ One Time Secret is an API that allows users to securely share sensitive informat
 - Optional file attachments (stored on Cloudinary)
 - Automatic cleanup files in readed secrets with scheduled jobs
 - Swagger-based API documentation
+- Modern React frontend with TypeScript
 
 ## ⚙️ Tech Stack
 
+### Backend (server/)
 | Layer         | Library/Tool                     |
 |--------------|----------------------------------|
 | Web Server    | [Express 5](https://expressjs.com/)             |
@@ -39,41 +41,100 @@ One Time Secret is an API that allows users to securely share sensitive informat
 | Validation    | [Zod](https://zod.dev/)                         |
 | Scheduler     | [node-cron](https://www.npmjs.com/package/node-cron) |
 
+### Frontend (client/)
+| Layer         | Library/Tool                     |
+|--------------|----------------------------------|
+| Framework     | [React 19](https://react.dev/)                  |
+| Build Tool    | [Vite 7](https://vite.dev/)                     |
+| Styling       | [Tailwind CSS 4](https://tailwindcss.com/)      |
+| Language      | [TypeScript](https://www.typescriptlang.org/)   |
+
+## Project Structure
+
+This is a monorepo using npm workspaces:
+
+```
+OneTimeSecret/
+├── server/                 # Backend API
+│   ├── src/
+│   │   ├── config/        # Configuration files
+│   │   ├── controllers/   # Route controllers
+│   │   ├── middlewares/   # Express middlewares
+│   │   ├── models/        # Mongoose models
+│   │   ├── routes/        # API routes
+│   │   ├── services/      # Business logic
+│   │   ├── utils/         # Utility functions
+│   │   └── validators/    # Zod validation schemas
+│   ├── tests/             # Unit & integration tests
+│   └── package.json
+├── client/                 # Frontend React app
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── pages/         # Page components
+│   │   └── ...
+│   └── package.json
+├── package.json           # Root workspace config
+└── README.md
+```
 
 ## Getting Started
 
 ### 1. Clone the Repository
 
 ```bash
-    git clone https://github.com/ThienND04/OneTimeSecret.git
-    cd OneTimeSecret
+git clone https://github.com/ThienND04/OneTimeSecret.git
+cd OneTimeSecret
 ```
+
 ### 2. Install dependencies 
 
 ```bash
-    npm install
+npm install
 ```
+
+This will install dependencies for both server and client workspaces.
 
 ### 3. Set Up Environment Variables
-Create a .env file in the root directory and configure it as follows:
-```bash
-    PORT=3000
-    MONGO_URI=mongodb://localhost:27017/secretdb
-    BCRYPT_SALT_ROUNDS=7
-    SECRET_KEY=jcsdjfbshbfs
-    CLOUDINARY_CLOUD_NAME=your_cloud_name
-    CLOUDINARY_API_KEY=your_api_key
-    CLOUDINARY_API_SECRET=your_api_secret
-```
-### 4. Run the server 
-```bash
-    npm start
-```
-    Server run at http://localhost:PORT. 
 
-## Api documentation
+Create a `.env.development` file in the `server/` directory:
+
+```bash
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/secretdb_dev
+BCRYPT_SALT_ROUNDS=7
+SECRET_KEY=your_secret_key
+JWT_SECRET=your_jwt_secret
+JWT_ACCESS_EXPIRATION_MINUTES=15
+JWT_REFRESH_EXPIRATION_DAYS=7
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### 4. Run the application
+
+#### Development mode (backend only)
+```bash
+npm run dev
+```
+
+#### Development mode (frontend only)
+```bash
+npm run dev:client
+```
+
+#### Development mode (both)
+```bash
+npm run dev:all
+```
+
+- Backend API: http://localhost:3000
+- Frontend: http://localhost:5173
+
+## API Documentation
+
 This project uses Swagger for interactive API documentation.
-- Swagger UI: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+- Swagger UI: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
 ## Testing
 
@@ -98,7 +159,7 @@ npm test -- --coverage
 ### Test Structure
 
 ```
-tests/
+server/tests/
 ├── unit/                    # Unit tests
 │   ├── middlewares/        # Middleware tests
 │   ├── services/           # Service layer tests
@@ -126,13 +187,18 @@ See [CI/CD Setup Guide](docs/CI_CD_SETUP.md) for more details.
 - File uploads are handled securely via Cloudinary and Multer.
 
 ## Scripts
-| Script                    | Description                           |
-| ------------------------- | ------------------------------------- |
-| `npm run dev`            | Start server with hot reload          |
-| `npm start`              | Start server in production mode       |
-| `npm test`               | Run all tests (unit + integration)    |
-| `npm run test:unit`      | Run unit tests only                   |
-| `npm run test:integration` | Run integration tests only          |
+
+| Script                     | Description                              |
+| -------------------------- | ---------------------------------------- |
+| `npm run dev`              | Start backend server with hot reload     |
+| `npm run dev:client`       | Start frontend development server        |
+| `npm run dev:all`          | Start both backend and frontend          |
+| `npm start`                | Start backend in production mode         |
+| `npm run build`            | Build frontend for production            |
+| `npm test`                 | Run all tests (unit + integration)       |
+| `npm run test:unit`        | Run unit tests only                      |
+| `npm run test:integration` | Run integration tests only               |
+| `npm run format`           | Format code with Prettier                |
 
 ## Author
 Nguyen Duc Thien
