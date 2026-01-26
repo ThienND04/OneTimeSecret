@@ -58,9 +58,39 @@ const refreshTokenSchema = {
     })
 };
 
+/**
+ * Validation schema for forgot password request
+ * @type {Object}
+ * @property {import('zod').ZodObject} body - Request body schema
+ * @property {string} body.email - Valid email address
+ */
+const forgotPasswordSchema = {
+    body: z.strictObject({
+        email: z.string().email('Please provide a valid email')
+    })
+};
+
+/**
+ * Validation schema for password reset
+ * @type {Object}
+ * @property {import('zod').ZodObject} body - Request body schema
+ * @property {string} body.token - Reset token received via email
+ * @property {string} body.password - New password (6-25 characters)
+ */
+const resetPasswordSchema = {
+    body: z.strictObject({
+        token: z.string(),
+        password: z.string()
+            .min(6, 'Password must be at least 6 characters long')
+            .max(25, 'Password must be at most 25 characters long')
+    })
+};
+
 module.exports = {
     registerSchema,
     loginSchema,
     logoutSchema,
-    refreshTokenSchema
+    refreshTokenSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema
 };

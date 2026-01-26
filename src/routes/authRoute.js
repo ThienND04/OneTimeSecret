@@ -9,6 +9,8 @@ router.post('/register', validate(authValidator.registerSchema), authController.
 router.post('/login', validate(authValidator.loginSchema), authController.login);
 router.post('/logout', validate(authValidator.logoutSchema), authController.logout);
 router.post('/refresh-tokens', validate(authValidator.refreshTokenSchema), authController.refreshToken);
+router.post('/forgot-password', validate(authValidator.forgotPasswordSchema), authController.forgotPassword);
+router.post('/reset-password', validate(authValidator.resetPasswordSchema), authController.resetPassword);
 
 /**
  * @swagger

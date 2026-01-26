@@ -80,9 +80,33 @@ const generateAuthTokens = async (user) => {
     };
 }
 
+/**
+ * Generates a password reset token for a user
+ * @param {string} email - User email address
+ * @returns {Promise<string>} Reset token
+ * @throws {Error} If user not found
+ */
+const generateResetPasswordToken = async (email) => {
+    const User = require('../models/User');
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+        throw new Error('No user found with this email');
+    }
+    
+    // Delete any existing reset tokens for this user
+    await Token.deleteMany({ userId: user.id, type: TokenType.RESET_PASSWORD });
+    
+    // Generate new reset token (expires in 10 minutes)
+    const resetToken = generateToken(user.id, 10 * 60, TokenType.RESET_PASSWORD);
+    await saveToken(resetToken, user.id, TokenType.RESET_PASSWORD);
+    
+    return resetToken;
+}
+
 module.exports = {
     generateToken,
     saveToken,
     verifyToken,
-    generateAuthTokens
+    generateAuthTokens,
+    generateResetPasswordToken
 };
