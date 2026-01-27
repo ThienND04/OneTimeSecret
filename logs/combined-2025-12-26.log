@@ -1,2 +1,0 @@
-{"level":"info","message":"::1 - POST /api/secret/ HTTP/1.1 201 112 - 93.792 ms","service":"one-time-secret","timestamp":"2025-12-26 00:23:27"}
-{"level":"info","message":"::1 - POST /api/secret/ HTTP/1.1 201 112 - 65.853 ms","service":"one-time-secret","timestamp":"2025-12-26 00:23:47"}
