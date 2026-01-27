@@ -1,91 +1,91 @@
 import MainLayout from '../layouts/MainLayout';
+import { Button, Card, IconBox, GradientText } from '../components/common';
 
 export default function HomePage() {
   return (
     <MainLayout>
-      <div className="w-full">
+      <div className="w-full space-y-24 lg:space-y-32 justify-items-center">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Share Secrets Securely
+        <div className="text-center max-w-6xl mx-auto">
+          <h2 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white mb-8 leading-tight">
+            Share Secrets <GradientText>Securely</GradientText>
           </h2>
-          <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl sm:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
             Send sensitive information that can only be read once and then disappears forever
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <a
-              href="/create"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors shadow-lg shadow-blue-600/20"
-            >
+          <div className="flex gap-6 justify-center flex-wrap">
+            <Button href="/create" variant="primary" size="lg" className="shadow-2xl">
               Create a Secret
-            </a>
-            <button className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors border border-slate-700">
+            </Button>
+            <Button variant="secondary" size="lg">
               Learn More
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 hover:border-blue-600/50 transition-colors">
-            <div className="w-14 h-14 bg-blue-600/10 rounded-lg flex items-center justify-center mb-6">
-              <span className="text-3xl">🔒</span>
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3">One-Time Access</h3>
-            <p className="text-slate-400 leading-relaxed">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+          <Card variant="cyan">
+            <IconBox variant="cyan" size="md" className="mb-8">
+              <span className="text-5xl">🔒</span>
+            </IconBox>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">One-Time Access</h3>
+            <p className="text-gray-300 leading-relaxed text-lg">
               Your secret can only be viewed once. After that, it's permanently deleted.
             </p>
-          </div>
+          </Card>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 hover:border-purple-600/50 transition-colors">
-            <div className="w-14 h-14 bg-purple-600/10 rounded-lg flex items-center justify-center mb-6">
-              <span className="text-3xl">🔐</span>
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Password Protected</h3>
-            <p className="text-slate-400 leading-relaxed">
+          <Card variant="emerald">
+            <IconBox variant="emerald" size="md" className="mb-8">
+              <span className="text-5xl">🔐</span>
+            </IconBox>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">Password Protected</h3>
+            <p className="text-gray-300 leading-relaxed text-lg">
               Optionally add password protection for an extra layer of security.
             </p>
-          </div>
+          </Card>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 hover:border-green-600/50 transition-colors">
-            <div className="w-14 h-14 bg-green-600/10 rounded-lg flex items-center justify-center mb-6">
-              <span className="text-3xl">📎</span>
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3">File Attachments</h3>
-            <p className="text-slate-400 leading-relaxed">
+          <Card variant="gradient" className="sm:col-span-2 lg:col-span-1">
+            <IconBox variant="gradient" size="md" className="mb-8">
+              <span className="text-5xl">📎</span>
+            </IconBox>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">File Attachments</h3>
+            <p className="text-gray-300 leading-relaxed text-lg">
               Attach up to 3 files to your secret message for secure sharing.
             </p>
-          </div>
+          </Card>
         </div>
 
         {/* How it works */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-12">
-          <h3 className="text-3xl font-bold text-white mb-12 text-center">How It Works</h3>
-          <div className="grid md:grid-cols-3 gap-12">
+        <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 border-2 border-cyan-500/30 rounded-3xl p-12 lg:p-20 backdrop-blur-sm">
+          <h3 className="text-4xl sm:text-5xl font-extrabold text-white mb-16 lg:mb-20 text-center">
+            How It <GradientText>Works</GradientText>
+          </h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
             <div className="text-center">
-              <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-3xl shadow-lg shadow-blue-600/30">
-                1
-              </div>
-              <h4 className="text-xl font-semibold text-white mb-3">Create</h4>
-              <p className="text-slate-400 leading-relaxed">
+              <IconBox variant="cyan" size="lg" shape="circle" className="mx-auto mb-8 border-4 border-cyan-400/30">
+                <span className="text-white font-black text-5xl sm:text-6xl">1</span>
+              </IconBox>
+              <h4 className="text-2xl sm:text-3xl font-bold text-white mb-4">Create</h4>
+              <p className="text-gray-300 leading-relaxed text-lg">
                 Write your secret message or upload files
               </p>
             </div>
             <div className="text-center">
-              <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-3xl shadow-lg shadow-purple-600/30">
-                2
-              </div>
-              <h4 className="text-xl font-semibold text-white mb-3">Share</h4>
-              <p className="text-slate-400 leading-relaxed">
+              <IconBox variant="emerald" size="lg" shape="circle" className="mx-auto mb-8 border-4 border-emerald-400/30">
+                <span className="text-white font-black text-5xl sm:text-6xl">2</span>
+              </IconBox>
+              <h4 className="text-2xl sm:text-3xl font-bold text-white mb-4">Share</h4>
+              <p className="text-gray-300 leading-relaxed text-lg">
                 Get a unique link and share it securely
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white font-bold text-3xl shadow-lg shadow-green-600/30">
-                3
-              </div>
-              <h4 className="text-xl font-semibold text-white mb-3">Auto-Delete</h4>
-              <p className="text-slate-400 leading-relaxed">
+            <div className="text-center sm:col-span-2 lg:col-span-1">
+              <IconBox variant="gradient" size="lg" shape="circle" className="mx-auto mb-8 border-4 border-cyan-400/30">
+                <span className="text-white font-black text-5xl sm:text-6xl">3</span>
+              </IconBox>
+              <h4 className="text-2xl sm:text-3xl font-bold text-white mb-4">Auto-Delete</h4>
+              <p className="text-gray-300 leading-relaxed text-lg">
                 Message disappears after being read once
               </p>
             </div>
