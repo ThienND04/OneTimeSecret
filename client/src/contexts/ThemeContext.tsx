@@ -12,16 +12,16 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-    const [theme, setTheme] = useState<Theme>('dark');
+    const [theme, setTheme] = useState<Theme>(() => {
+        // Load theme from localStorage or default to 'dark'
+        const savedTheme = localStorage.getItem('theme') as Theme;
+        return savedTheme || 'dark';
+    });
 
     useEffect(() => {
-        // Load theme from localStorage
-        const savedTheme = localStorage.getItem('theme') as Theme;
-        if (savedTheme) {
-            setTheme(savedTheme);
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-    }, []);
+        // Apply theme to document
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -37,7 +37,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: handleSetTheme }}>
+        <ThemeContext.Provider
+            value={{ theme, toggleTheme, setTheme: handleSetTheme }}
+        >
             {children}
         </ThemeContext.Provider>
     );
