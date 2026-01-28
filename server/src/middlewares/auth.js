@@ -14,23 +14,35 @@ const config = require('../config/config');
  */
 const authenticate = async (req, res, next) => {
     try {
-        const authHeader = req.headers.authorization;
-        
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Authentication required');
+        let token = null;
+
+        // Try to get token from cookie
+        if (req.cookies && req.cookies.accessToken) {
+            token = req.cookies.accessToken;
+        }
+        // Fallback to Authorization header
+        else if (
+            req.headers.authorization &&
+            req.headers.authorization.startsWith('Bearer ')
+        ) {
+            token = req.headers.authorization.replace('Bearer ', '');
         }
 
-        const token = authHeader.replace('Bearer ', '');
-        
         if (!token) {
-            throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Authentication required');
+            throw new ApiError(
+                httpStatus.default.UNAUTHORIZED,
+                'Authentication required'
+            );
         }
 
         const decoded = jwt.verify(token, config.jwt.secret);
         const user = await User.findById(decoded.sub);
 
         if (!user) {
-            throw new ApiError(httpStatus.default.UNAUTHORIZED, 'User not found');
+            throw new ApiError(
+                httpStatus.default.UNAUTHORIZED,
+                'User not found'
+            );
         }
 
         req.user = user;
@@ -38,9 +50,13 @@ const authenticate = async (req, res, next) => {
         next();
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {
-            next(new ApiError(httpStatus.default.UNAUTHORIZED, 'Invalid token'));
+            next(
+                new ApiError(httpStatus.default.UNAUTHORIZED, 'Invalid token')
+            );
         } else if (error.name === 'TokenExpiredError') {
-            next(new ApiError(httpStatus.default.UNAUTHORIZED, 'Token expired'));
+            next(
+                new ApiError(httpStatus.default.UNAUTHORIZED, 'Token expired')
+            );
         } else {
             next(error);
         }
@@ -57,19 +73,27 @@ const authenticate = async (req, res, next) => {
  */
 const optionalAuth = async (req, res, next) => {
     try {
-        const authHeader = req.headers.authorization;
-        
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.replace('Bearer ', '');
-            
-            if (token) {
-                const decoded = jwt.verify(token, config.jwt.secret);
-                const user = await User.findById(decoded.sub);
-                
-                if (user) {
-                    req.user = user;
-                    req.userId = user._id;
-                }
+        let token = null;
+
+        // Try to get token from cookie
+        if (req.cookies && req.cookies.accessToken) {
+            token = req.cookies.accessToken;
+        }
+        // Fallback to Authorization header
+        else if (
+            req.headers.authorization &&
+            req.headers.authorization.startsWith('Bearer ')
+        ) {
+            token = req.headers.authorization.replace('Bearer ', '');
+        }
+
+        if (token) {
+            const decoded = jwt.verify(token, config.jwt.secret);
+            const user = await User.findById(decoded.sub);
+
+            if (user) {
+                req.user = user;
+                req.userId = user._id;
             }
         }
         next();

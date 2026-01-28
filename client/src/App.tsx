@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
-import { apiService } from './services/api';
 import HomePage from './pages/HomePage';
 import CreateSecretPage from './pages/CreateSecretPage';
 import ViewSecretPage from './pages/ViewSecretPage';
@@ -12,21 +11,7 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import './App.css';
 
-// Setup auth token getter for API service
-const getAuthToken = () => {
-    try {
-        const tokens = localStorage.getItem('auth_tokens');
-        if (tokens) {
-            const parsed = JSON.parse(tokens);
-            return parsed.access?.token || null;
-        }
-    } catch (error) {
-        console.error('Failed to get auth token:', error);
-    }
-    return null;
-};
-
-apiService.setAuthTokenGetter(getAuthToken);
+// No need to setup token getter anymore, tokens are in httpOnly cookies
 
 function App() {
     return (
