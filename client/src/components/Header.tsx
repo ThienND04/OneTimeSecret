@@ -10,15 +10,6 @@ export default function Header() {
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    console.log(
-        '[Header] Render - isLoading:',
-        isLoading,
-        'isAuthenticated:',
-        isAuthenticated,
-        'user:',
-        user?.userName
-    );
-
     const handleLogout = async () => {
         if (isLoggingOut) return;
         setIsLoggingOut(true);
@@ -64,6 +55,11 @@ export default function Header() {
                     <Button to="/" variant="ghost" size="sm">
                         Home
                     </Button>
+                    {isAuthenticated && (
+                        <Button to="/my-secrets" variant="ghost" size="sm">
+                            My Secrets
+                        </Button>
+                    )}
 
                     {isLoading ? (
                         // Show nothing while loading auth state
@@ -97,6 +93,15 @@ export default function Header() {
                                                 {user?.email}
                                             </p>
                                         </div>
+                                        <Link
+                                            to="/my-secrets"
+                                            onClick={() =>
+                                                setShowUserMenu(false)
+                                            }
+                                            className="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition-colors"
+                                        >
+                                            My Secrets
+                                        </Link>
                                         <button
                                             onClick={handleLogout}
                                             disabled={isLoggingOut}

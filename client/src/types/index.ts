@@ -10,6 +10,9 @@ export interface Secret {
     }>;
     createdAt: string;
     title?: string;
+    read?: boolean;
+    isRevoked?: boolean;
+    userId?: string;
 }
 
 export interface CreateSecretRequest {
@@ -87,4 +90,40 @@ export interface RefreshTokensRequest {
 
 export interface LogoutRequest {
     refreshToken: string;
+}
+
+// User Secrets Management Types
+export interface UserSecret {
+    id: string;
+    title?: string;
+    read: boolean;
+    isRevoked: boolean;
+    createdAt: string;
+    expiresAt?: string;
+    hasPassword: boolean;
+    filesCount: number;
+}
+
+export interface GetUserSecretsResponse {
+    secrets: UserSecret[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+}
+
+export interface UserSecretStats {
+    total: number;
+    viewed: number;
+    unviewed: number;
+    revoked: number;
+}
+
+export interface SecretDetails extends Secret {
+    viewHistory: Array<{
+        viewedAt: string;
+        ipAddress?: string;
+    }>;
 }

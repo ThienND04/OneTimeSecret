@@ -4,22 +4,14 @@ import type {
     LoginRequest,
     ForgotPasswordRequest,
     ResetPasswordRequest,
-    RefreshTokensRequest,
-    LogoutRequest,
     AuthResponse
 } from '../types';
 
 class ApiService {
     private baseURL: string;
-    private getAuthToken: (() => string | null) | null = null;
 
     constructor() {
         this.baseURL = `${API_URL}/api`;
-    }
-
-    // Set the function to retrieve auth token
-    setAuthTokenGetter(getter: () => string | null) {
-        this.getAuthToken = getter;
     }
 
     // Helper to get headers with auth token if available
@@ -30,12 +22,21 @@ class ApiService {
             headers['Content-Type'] = 'application/json';
         }
 
-        // Add Authorization header if token is available
-        if (this.getAuthToken) {
-            const token = this.getAuthToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
+        // Read token directly from localStorage
+        try {
+            const tokensStr = localStorage.getItem('auth_tokens');
+            if (tokensStr) {
+                const tokens = JSON.parse(tokensStr);
+                const accessToken = tokens?.access?.token;
+                if (accessToken) {
+                    headers['Authorization'] = `Bearer ${accessToken}`;
+                }
             }
+        } catch (error) {
+            console.error(
+                'Failed to read auth token from localStorage:',
+                error
+            );
         }
 
         return headers;
@@ -63,11 +64,20 @@ class ApiService {
 
         // Build headers for FormData (no Content-Type, but include auth token if available)
         const headers: HeadersInit = {};
-        if (this.getAuthToken) {
-            const token = this.getAuthToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
+        try {
+            const tokensStr = localStorage.getItem('auth_tokens');
+            if (tokensStr) {
+                const tokens = JSON.parse(tokensStr);
+                const accessToken = tokens?.access?.token;
+                if (accessToken) {
+                    headers['Authorization'] = `Bearer ${accessToken}`;
+                }
             }
+        } catch (error) {
+            console.error(
+                'Failed to read auth token from localStorage:',
+                error
+            );
         }
 
         const response = await fetch(`${this.baseURL}/secret`, {
@@ -195,6 +205,71 @@ class ApiService {
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || 'Failed to refresh tokens');
+        }
+
+        return response.json();
+    }
+
+    // User Secrets Management
+    async getUserSecrets(params?: {
+        page?: number;
+        limit?: number;
+        status?: 'viewed' | 'unviewed' | 'revoked' | 'all';
+        sortBy?: string;
+        search?: string;
+    }) {
+        const searchParams = new URLSearchParams();
+        if (params?.page) searchParams.append('page', params.page.toString());
+        if (params?.limit)
+            searchParams.append('limit', params.limit.toString());
+        if (params?.status) searchParams.append('status', params.status);
+        if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+        if (params?.search) searchParams.append('search', params.search);
+
+        const url = `${this.baseURL}/secret/me/secrets${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: this.getHeaders(),
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to fetch secrets');
+        }
+
+        return response.json();
+    }
+
+    async getUserStats() {
+        const response = await fetch(`${this.baseURL}/secret/me/stats`, {
+            method: 'GET',
+            headers: this.getHeaders(),
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to fetch stats');
+        }
+
+        return response.json();
+    }
+
+    async revokeSecret(secretId: string) {
+        const response = await fetch(
+            `${this.baseURL}/secret/me/secrets/${secretId}`,
+            {
+                method: 'DELETE',
+                headers: this.getHeaders(),
+                credentials: 'include'
+            }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to revoke secret');
         }
 
         return response.json();
