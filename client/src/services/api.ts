@@ -61,8 +61,19 @@ class ApiService {
             });
         }
 
+        // Build headers for FormData (no Content-Type, but include auth token if available)
+        const headers: HeadersInit = {};
+        if (this.getAuthToken) {
+            const token = this.getAuthToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
         const response = await fetch(`${this.baseURL}/secret`, {
             method: 'POST',
+            headers: headers,
+            credentials: 'include', // Send cookies with request
             body: formData
         });
 
@@ -77,7 +88,8 @@ class ApiService {
     async getSecret(id: string, password?: string) {
         const options: RequestInit = {
             method: 'POST',
-            headers: this.getHeaders()
+            headers: this.getHeaders(),
+            credentials: 'include' // Send cookies with request
         };
 
         if (password) {
@@ -102,6 +114,7 @@ class ApiService {
         const response = await fetch(`${this.baseURL}/auth/register`, {
             method: 'POST',
             headers: this.getHeaders(),
+            credentials: 'include', // Send cookies with request
             body: JSON.stringify(data)
         });
 
@@ -117,6 +130,7 @@ class ApiService {
         const response = await fetch(`${this.baseURL}/auth/login`, {
             method: 'POST',
             headers: this.getHeaders(),
+            credentials: 'include', // Send cookies with request
             body: JSON.stringify(data)
         });
 
@@ -128,11 +142,11 @@ class ApiService {
         return response.json();
     }
 
-    async logout(data: LogoutRequest): Promise<void> {
+    async logout(): Promise<void> {
         const response = await fetch(`${this.baseURL}/auth/logout`, {
             method: 'POST',
             headers: this.getHeaders(),
-            body: JSON.stringify(data)
+            credentials: 'include' // Send cookies with request
         });
 
         if (!response.ok) {
@@ -145,6 +159,7 @@ class ApiService {
         const response = await fetch(`${this.baseURL}/auth/forgot-password`, {
             method: 'POST',
             headers: this.getHeaders(),
+            credentials: 'include', // Send cookies with request
             body: JSON.stringify(data)
         });
 
@@ -159,6 +174,7 @@ class ApiService {
         const response = await fetch(`${this.baseURL}/auth/reset-password`, {
             method: 'POST',
             headers: this.getHeaders(),
+            credentials: 'include', // Send cookies with request
             body: JSON.stringify(data)
         });
 
@@ -169,11 +185,11 @@ class ApiService {
         }
     }
 
-    async refreshTokens(data: RefreshTokensRequest): Promise<AuthResponse> {
+    async refreshTokens(): Promise<AuthResponse> {
         const response = await fetch(`${this.baseURL}/auth/refresh-tokens`, {
             method: 'POST',
             headers: this.getHeaders(),
-            body: JSON.stringify(data)
+            credentials: 'include' // Send cookies with request
         });
 
         if (!response.ok) {

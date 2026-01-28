@@ -32,8 +32,13 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         setIsLoading(true);
 
         try {
+            console.log('[LoginForm] Calling login API...');
             const response = await apiService.login({ email, password });
+            console.log('[LoginForm] Login response:', response);
+            console.log('[LoginForm] User:', response.user);
+            console.log('[LoginForm] Tokens:', response.tokens);
             login(response.user, response.tokens);
+            console.log('[LoginForm] Context login() called');
 
             // Reset form
             setEmail('');
@@ -55,12 +60,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-                <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg">
-                    {error}
-                </div>
-            )}
-
             <Input
                 label="Email"
                 type="email"
@@ -89,6 +88,12 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             >
                 {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
+
+            {error && (
+                <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                </div>
+            )}
         </form>
     );
 };

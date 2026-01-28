@@ -83,12 +83,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-                <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg">
-                    {error}
-                </div>
-            )}
-
             <Input
                 label="Username"
                 type="text"
@@ -160,6 +154,12 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
             >
                 {isLoading ? 'Creating account...' : 'Create Account'}
             </Button>
+
+            {error && (
+                <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                </div>
+            )}
         </form>
     );
 };

@@ -7,8 +7,6 @@ const validate = require('../middlewares/validate');
 const secretValidator = require('../validators/secretValidator');
 const { authenticate, optionalAuth } = require('../middlewares/auth');
 
-// Public routes - upload.array() must come BEFORE validate() for multipart/form-data
-// optionalAuth allows associating secrets with authenticated users without requiring login
 router.post(
     '/',
     optionalAuth,

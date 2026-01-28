@@ -5,19 +5,26 @@ import { apiService } from '../services/api';
 import { useState } from 'react';
 
 export default function Header() {
-    const { isAuthenticated, user, logout, tokens } = useAuth();
+    const { isAuthenticated, user, logout, isLoading } = useAuth();
     const navigate = useNavigate();
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    console.log(
+        '[Header] Render - isLoading:',
+        isLoading,
+        'isAuthenticated:',
+        isAuthenticated,
+        'user:',
+        user?.userName
+    );
 
     const handleLogout = async () => {
         if (isLoggingOut) return;
         setIsLoggingOut(true);
 
         try {
-            if (tokens?.refresh.token) {
-                await apiService.logout({ refreshToken: tokens.refresh.token });
-            }
+            await apiService.logout();
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
@@ -58,7 +65,10 @@ export default function Header() {
                         Home
                     </Button>
 
-                    {isAuthenticated ? (
+                    {isLoading ? (
+                        // Show nothing while loading auth state
+                        <div className="w-24 h-10 animate-pulse bg-gray-700/50 rounded-lg"></div>
+                    ) : isAuthenticated ? (
                         <div className="relative">
                             <button
                                 onClick={() => setShowUserMenu(!showUserMenu)}

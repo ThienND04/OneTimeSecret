@@ -3,6 +3,9 @@ const catchAsync = require('../utils/catchAsync');
 const httpStatus = require('http-status');
 const tokenService = require('../services/tokenService');
 const authService = require('../services/authService');
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
+const ApiError = require('../utils/apiError');
 
 /**
  * Register a new user
@@ -15,7 +18,23 @@ const authService = require('../services/authService');
 const register = catchAsync(async (req, res) => {
     const user = await userService.createUser(req.body);
     const tokens = await tokenService.generateAuthTokens(user);
-    res.status(httpStatus.default.CREATED).send({ user, tokens });
+
+    // Set refresh token as httpOnly cookie
+    const config = require('../config/config');
+    res.cookie('refreshToken', tokens.refresh.token, {
+        httpOnly: config.cookie.httpOnly,
+        secure: config.cookie.secure,
+        sameSite: config.cookie.sameSite,
+        maxAge: config.cookie.maxAge
+    });
+
+    // Only send access token and user in response body
+    res.status(httpStatus.default.CREATED).send({
+        user,
+        tokens: {
+            access: tokens.access
+        }
+    });
 });
 
 /**
@@ -27,10 +46,26 @@ const register = catchAsync(async (req, res) => {
  * @returns {Promise<void>} Returns user and auth tokens
  */
 const login = catchAsync(async (req, res) => {
-    const {email, password} =  req.body;
+    const { email, password } = req.body;
     const user = await authService.loginUser(email, password);
     const tokens = await tokenService.generateAuthTokens(user);
-    res.status(httpStatus.default.OK).send({ user, tokens });
+
+    // Set refresh token as httpOnly cookie
+    const config = require('../config/config');
+    res.cookie('refreshToken', tokens.refresh.token, {
+        httpOnly: config.cookie.httpOnly,
+        secure: config.cookie.secure,
+        sameSite: config.cookie.sameSite,
+        maxAge: config.cookie.maxAge
+    });
+
+    // Only send access token and user in response body
+    res.status(httpStatus.default.OK).send({
+        user,
+        tokens: {
+            access: tokens.access
+        }
+    });
 });
 
 /**
@@ -42,7 +77,14 @@ const login = catchAsync(async (req, res) => {
  * @returns {Promise<void>} Returns success message
  */
 const logout = catchAsync(async (req, res) => {
-    await authService.logoutUser(req.body.refreshToken);
+    // Get refresh token from cookie instead of body
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+        await authService.logoutUser(refreshToken);
+    }
+
+    // Clear the refresh token cookie
+    res.clearCookie('refreshToken');
     res.status(httpStatus.default.OK).json({ message: 'Logout successful' });
 });
 
@@ -55,9 +97,36 @@ const logout = catchAsync(async (req, res) => {
  * @returns {Promise<void>} Returns new auth tokens
  */
 const refreshToken = catchAsync(async (req, res) => {
-    const tokens = await authService.refreshAuth(req.body.refreshToken);
-    res.status(200).json({ tokens, message: 'Token refreshed successfully' });
-}); 
+    // Get refresh token from cookie instead of body
+    const refreshTokenValue = req.cookies.refreshToken;
+    if (!refreshTokenValue) {
+        throw new ApiError(
+            httpStatus.default.UNAUTHORIZED,
+            'Refresh token not found'
+        );
+    }
+
+    const tokens = await authService.refreshAuth(refreshTokenValue);
+    const decoded = jwt.verify(tokens.access.token, config.jwt.secret);
+    const user = await userService.getUserById(decoded.sub);
+
+    // Update refresh token cookie with new token
+    res.cookie('refreshToken', tokens.refresh.token, {
+        httpOnly: config.cookie.httpOnly,
+        secure: config.cookie.secure,
+        sameSite: config.cookie.sameSite,
+        maxAge: config.cookie.maxAge
+    });
+
+    // Send access token and user info in response body
+    res.status(200).json({
+        user,
+        tokens: {
+            access: tokens.access
+        },
+        message: 'Token refreshed successfully'
+    });
+});
 
 /**
  * Request password reset
@@ -85,4 +154,11 @@ const resetPassword = catchAsync(async (req, res) => {
     res.status(httpStatus.default.NO_CONTENT).send();
 });
 
-module.exports = {register, login, logout, refreshToken, forgotPassword, resetPassword};
+module.exports = {
+    register,
+    login,
+    logout,
+    refreshToken,
+    forgotPassword,
+    resetPassword
+};
