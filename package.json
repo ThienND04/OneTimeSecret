@@ -1,39 +1,48 @@
 {
-	"name": "onetimesecret",
-	"version": "1.0.0",
-	"description": "the messages automatic destroys ",
-	"keywords": [
-		"secret",
-		"message"
-	],
-	"homepage": "https://github.com/ThienND04/OneTimeSecret#readme",
-	"bugs": {
-		"url": "https://github.com/ThienND04/OneTimeSecret/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/ThienND04/OneTimeSecret.git"
-	},
-	"license": "ISC",
-	"author": "ThienND04",
-	"workspaces": [
-		"server",
-		"client"
-	],
-	"scripts": {
-		"dev": "npm run dev --workspace=server",
-		"dev:client": "npm run dev --workspace=client",
-		"dev:all": "npm run dev --workspace=server & npm run dev --workspace=client",
-		"start": "npm run start --workspace=server",
-		"build": "npm run build --workspace=client",
-		"test": "npm run test --workspace=server",
-		"test:unit": "npm run test:unit --workspace=server",
-		"test:integration": "npm run test:integration --workspace=server",
-		"format": "prettier --write .",
-		"install:all": "npm install"
-	},
-	"devDependencies": {
-		"@flydotio/dockerfile": "^0.7.10",
-		"prettier": "^3.6.2"
-	}
+    "name": "onetimesecret",
+    "version": "1.0.0",
+    "description": "the messages automatic destroys ",
+    "keywords": [
+        "secret",
+        "message"
+    ],
+    "homepage": "https://github.com/ThienND04/OneTimeSecret#readme",
+    "bugs": {
+        "url": "https://github.com/ThienND04/OneTimeSecret/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ThienND04/OneTimeSecret.git"
+    },
+    "license": "ISC",
+    "author": "ThienND04",
+    "workspaces": [
+        "server",
+        "client"
+    ],
+    "scripts": {
+        "dev": "npm run dev --workspace=server",
+        "dev:client": "npm run dev --workspace=client",
+        "dev:all": "npm run dev --workspace=server & npm run dev --workspace=client",
+        "start": "npm run start --workspace=server",
+        "build": "npm run build --workspace=client",
+        "test": "npm run test --workspace=server",
+        "test:unit": "npm run test:unit --workspace=server",
+        "test:integration": "npm run test:integration --workspace=server",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "install:all": "npm install",
+        "prepare": "husky"
+    },
+    "lint-staged": {
+        "*.{js,jsx,ts,tsx,json,css,md}": [
+            "prettier --write"
+        ]
+    },
+    "devDependencies": {
+        "@flydotio/dockerfile": "^0.7.10",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
+        "prettier": "^3.6.2"
+    }
 }
