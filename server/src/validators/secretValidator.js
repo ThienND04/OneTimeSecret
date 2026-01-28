@@ -12,16 +12,28 @@ const { z } = require('zod');
  */
 const createSecretSchema = {
     body: z.strictObject({
-        content: z.string().min(1, 'Content is required'),
+        content: z
+            .string()
+            .min(1, 'Content is required')
+            .max(10000, 'Content must be 10000 characters or less'),
         password: z.string().default(null).optional(),
-        files: z.array(z.object({
-            url: z.string().url('Invalid URL format'),
-            originalName: z.string().min(1, 'Original name is required'),
-            mimeType: z.string().min(1, 'MIME type is required'),
-            filename: z.string().min(1, 'Filename is required')
-        })).optional(),
+        files: z
+            .array(
+                z.object({
+                    url: z.string().url('Invalid URL format'),
+                    originalName: z
+                        .string()
+                        .min(1, 'Original name is required'),
+                    mimeType: z.string().min(1, 'MIME type is required'),
+                    filename: z.string().min(1, 'Filename is required')
+                })
+            )
+            .optional(),
         is_client_encrypted: z.boolean().default(false),
-        title: z.string().max(100, 'Title must be 100 characters or less').optional()
+        title: z
+            .string()
+            .max(100, 'Title must be 100 characters or less')
+            .optional()
     })
 };
 
@@ -35,7 +47,7 @@ const createSecretSchema = {
  */
 const getSecretSchema = {
     params: z.strictObject({
-        id: z.string().uuid('Invalid secret ID format'),
+        id: z.string().uuid('Invalid secret ID format')
     }),
     body: z.strictObject({
         password: z.string().optional()
@@ -52,7 +64,10 @@ const getUserSecretsSchema = {
         page: z.string().regex(/^\d+$/).transform(Number).optional(),
         limit: z.string().regex(/^\d+$/).transform(Number).optional(),
         status: z.enum(['viewed', 'unviewed', 'revoked', 'all']).optional(),
-        sortBy: z.string().regex(/^(createdAt|readAt|title):(asc|desc)$/).optional(),
+        sortBy: z
+            .string()
+            .regex(/^(createdAt|readAt|title):(asc|desc)$/)
+            .optional(),
         search: z.string().optional()
     })
 };

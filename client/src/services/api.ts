@@ -52,7 +52,10 @@ class ApiService {
             options.body = JSON.stringify({ password });
         }
 
-        const response = await fetch(`${this.baseURL}/secret/${id}`, options);
+        const response = await fetch(
+            `${this.baseURL}/secret/search/${id}`,
+            options
+        );
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));

@@ -22,6 +22,7 @@ export interface CreateSecretRequest {
 
 export interface CreateSecretResponse {
     message: string;
+    id: string;
     accessUrl: string;
 }
 
