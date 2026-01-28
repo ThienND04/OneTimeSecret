@@ -22,6 +22,7 @@ export interface CreateSecretRequest {
 
 export interface CreateSecretResponse {
     message: string;
+    id: string;
     accessUrl: string;
 }
 
@@ -32,4 +33,58 @@ export interface GetSecretRequest {
 export interface GetSecretResponse {
     success: boolean;
     data: Secret;
+}
+
+// Auth Types
+export interface User {
+    id: string;
+    userName: string;
+    email: string;
+    gender: 'male' | 'female' | 'helicopter';
+    createdAt: string;
+}
+
+export interface AuthTokens {
+    access: {
+        token: string;
+        expires: number;
+    };
+    refresh: {
+        token: string;
+        expires: number;
+    };
+}
+
+export interface AuthResponse {
+    user: User;
+    tokens: AuthTokens;
+}
+
+export interface RegisterRequest {
+    userName: string;
+    email: string;
+    password: string;
+    gender: 'male' | 'female' | 'helicopter';
+}
+
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
+export interface ForgotPasswordRequest {
+    email: string;
+}
+
+export interface ResetPasswordRequest {
+    token: string;
+    password: string;
+}
+
+export interface RefreshTokensRequest {
+    refreshToken: string;
+}
+
+export interface LogoutRequest {
+    refreshToken: string;
 }

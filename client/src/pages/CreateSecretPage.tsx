@@ -122,7 +122,7 @@ const CreateSecretPage = () => {
             {successResponse && (
                 <SecretSuccessModal
                     isOpen={isModalOpen}
-                    accessUrl={successResponse.accessUrl}
+                    secretId={successResponse.id}
                     onClose={handleCloseModal}
                 />
             )}

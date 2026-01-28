@@ -9,13 +9,38 @@ const { authenticate, optionalAuth } = require('../middlewares/auth');
 
 // Public routes - upload.array() must come BEFORE validate() for multipart/form-data
 // optionalAuth allows associating secrets with authenticated users without requiring login
-router.post('/', optionalAuth, upload.array('files', 3), validate(secretValidator.createSecretSchema), secretController.createSecret);
-router.get('/:id', validate(secretValidator.getSecretSchema), secretController.getSecretById);
+router.post(
+    '/',
+    optionalAuth,
+    upload.array('files', 3),
+    validate(secretValidator.createSecretSchema),
+    secretController.createSecret
+);
+router.post(
+    '/search/:id',
+    validate(secretValidator.getSecretSchema),
+    secretController.getSecretById
+);
 
 // Authenticated routes - Secret management for logged-in users
-router.get('/me/secrets', authenticate, validate(secretValidator.getUserSecretsSchema), secretController.getUserSecrets);
+router.get(
+    '/me/secrets',
+    authenticate,
+    validate(secretValidator.getUserSecretsSchema),
+    secretController.getUserSecrets
+);
 router.get('/me/stats', authenticate, secretController.getUserStats);
-router.get('/me/secrets/:id', authenticate, validate(secretValidator.getSecretDetailsSchema), secretController.getSecretDetails);
-router.delete('/me/secrets/:id', authenticate, validate(secretValidator.revokeSecretSchema), secretController.revokeSecret);
+router.get(
+    '/me/secrets/:id',
+    authenticate,
+    validate(secretValidator.getSecretDetailsSchema),
+    secretController.getSecretDetails
+);
+router.delete(
+    '/me/secrets/:id',
+    authenticate,
+    validate(secretValidator.revokeSecretSchema),
+    secretController.revokeSecret
+);
 
 module.exports = router;

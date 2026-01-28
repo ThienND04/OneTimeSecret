@@ -1,10 +1,44 @@
 import { API_URL } from '../config/constants';
+import type {
+    RegisterRequest,
+    LoginRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    RefreshTokensRequest,
+    LogoutRequest,
+    AuthResponse
+} from '../types';
 
 class ApiService {
     private baseURL: string;
+    private getAuthToken: (() => string | null) | null = null;
 
     constructor() {
         this.baseURL = `${API_URL}/api`;
+    }
+
+    // Set the function to retrieve auth token
+    setAuthTokenGetter(getter: () => string | null) {
+        this.getAuthToken = getter;
+    }
+
+    // Helper to get headers with auth token if available
+    private getHeaders(includeContentType = true): HeadersInit {
+        const headers: HeadersInit = {};
+
+        if (includeContentType) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        // Add Authorization header if token is available
+        if (this.getAuthToken) {
+            const token = this.getAuthToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
+        return headers;
     }
 
     async createSecret(data: {
@@ -43,20 +77,108 @@ class ApiService {
     async getSecret(id: string, password?: string) {
         const options: RequestInit = {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: this.getHeaders()
         };
 
         if (password) {
             options.body = JSON.stringify({ password });
         }
 
-        const response = await fetch(`${this.baseURL}/secret/${id}`, options);
+        const response = await fetch(
+            `${this.baseURL}/secret/search/${id}`,
+            options
+        );
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || 'Failed to fetch secret');
+        }
+
+        return response.json();
+    }
+
+    // Auth Methods
+    async register(data: RegisterRequest): Promise<AuthResponse> {
+        const response = await fetch(`${this.baseURL}/auth/register`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Registration failed');
+        }
+
+        return response.json();
+    }
+
+    async login(data: LoginRequest): Promise<AuthResponse> {
+        const response = await fetch(`${this.baseURL}/auth/login`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Login failed');
+        }
+
+        return response.json();
+    }
+
+    async logout(data: LogoutRequest): Promise<void> {
+        const response = await fetch(`${this.baseURL}/auth/logout`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Logout failed');
+        }
+    }
+
+    async forgotPassword(data: ForgotPasswordRequest): Promise<void> {
+        const response = await fetch(`${this.baseURL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        // Backend returns 204 No Content on success
+        if (!response.ok && response.status !== 204) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to send reset email');
+        }
+    }
+
+    async resetPassword(data: ResetPasswordRequest): Promise<void> {
+        const response = await fetch(`${this.baseURL}/auth/reset-password`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        // Backend returns 204 No Content on success
+        if (!response.ok && response.status !== 204) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to reset password');
+        }
+    }
+
+    async refreshTokens(data: RefreshTokensRequest): Promise<AuthResponse> {
+        const response = await fetch(`${this.baseURL}/auth/refresh-tokens`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to refresh tokens');
         }
 
         return response.json();

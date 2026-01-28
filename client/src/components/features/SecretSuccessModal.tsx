@@ -4,16 +4,17 @@ import Card from '../common/Card';
 
 interface SecretSuccessModalProps {
     isOpen: boolean;
-    accessUrl: string;
+    secretId: string;
     onClose: () => void;
 }
 
 const SecretSuccessModal: React.FC<SecretSuccessModalProps> = ({
     isOpen,
-    accessUrl,
+    secretId,
     onClose
 }) => {
     const [copied, setCopied] = useState(false);
+    const frontendUrl = `${window.location.origin}/secret/${secretId}`;
 
     useEffect(() => {
         if (!isOpen) {
@@ -23,7 +24,7 @@ const SecretSuccessModal: React.FC<SecretSuccessModalProps> = ({
 
     const handleCopy = async () => {
         try {
-            await navigator.clipboard.writeText(accessUrl);
+            await navigator.clipboard.writeText(frontendUrl);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
@@ -71,7 +72,7 @@ const SecretSuccessModal: React.FC<SecretSuccessModalProps> = ({
                         <div className="flex gap-2">
                             <input
                                 type="text"
-                                value={accessUrl}
+                                value={frontendUrl}
                                 readOnly
                                 className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 font-mono text-sm"
                                 onClick={(e) => e.currentTarget.select()}
@@ -158,7 +159,7 @@ const SecretSuccessModal: React.FC<SecretSuccessModalProps> = ({
                             Create Another Secret
                         </Button>
                         <Button
-                            onClick={() => window.open(accessUrl, '_blank')}
+                            to={`/secret/${secretId}`}
                             variant="outline"
                             size="lg"
                             className="flex-1"

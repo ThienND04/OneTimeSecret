@@ -24,11 +24,11 @@ const createSecret = catchAsync(async (req, res) => {
         ? await bcrypt.hash(password, config.bcrypt.saltRounds)
         : null;
 
-    const files = (req.files || []).map(file => ({
+    const files = (req.files || []).map((file) => ({
         url: file.path || '',
         originalName: file.originalname,
         mimeType: file.mimetype,
-        filename: file.filename,
+        filename: file.filename
     }));
 
     const secret = new Secret({
@@ -38,7 +38,7 @@ const createSecret = catchAsync(async (req, res) => {
         iv,
         is_client_encrypted,
         password_hash,
-        userId: req.userId || null,  // From optionalAuth middleware
+        userId: req.userId || null, // From optionalAuth middleware
         title: title || null
     });
 
@@ -46,13 +46,14 @@ const createSecret = catchAsync(async (req, res) => {
 
     res.status(httpStatus.default.CREATED).json({
         message: 'Secret created',
-        accessUrl: `${req.protocol}://${req.get('host')}/api/secret/${id}`,
+        id: id,
+        accessUrl: `${req.protocol}://${req.get('host')}/api/secret/search/${id}`
     });
 });
 
 /**
  * @desc    Get secret by ID (one-time view)
- * @route   GET /api/secret/:id
+ * @route   POST /api/secret/search/:id
  * @access  Public
  */
 const getSecretById = catchAsync(async (req, res) => {
@@ -62,20 +63,35 @@ const getSecretById = catchAsync(async (req, res) => {
     const secret = await Secret.findOne({ id });
 
     if (!secret) {
-        throw new ApiError(httpStatus.default.NOT_FOUND, 'Secret not found or already viewed');
+        throw new ApiError(
+            httpStatus.default.NOT_FOUND,
+            'Secret not found or already viewed'
+        );
     }
 
     if (secret.read) {
-        throw new ApiError(httpStatus.default.GONE, 'Secret already viewed and destroyed');
+        throw new ApiError(
+            httpStatus.default.GONE,
+            'Secret already viewed and destroyed'
+        );
     }
 
     if (secret.password_hash) {
         if (!password) {
-            throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Password is required to access this secret');
+            throw new ApiError(
+                httpStatus.default.UNAUTHORIZED,
+                'Password is required to access this secret'
+            );
         }
-        const isPasswordValid = await bcrypt.compare(password, secret.password_hash);
+        const isPasswordValid = await bcrypt.compare(
+            password,
+            secret.password_hash
+        );
         if (!isPasswordValid) {
-            throw new ApiError(httpStatus.default.FORBIDDEN, 'Incorrect password');
+            throw new ApiError(
+                httpStatus.default.FORBIDDEN,
+                'Incorrect password'
+            );
         }
     }
 
@@ -85,16 +101,19 @@ const getSecretById = catchAsync(async (req, res) => {
         ipAddress: req.ip || req.connection.remoteAddress,
         userAgent: req.get('user-agent')
     };
-    
+
     secret.read = true;
     secret.readAt = new Date();
     secret.viewHistory.push(viewRecord);
     await secret.save();
 
     res.status(httpStatus.default.OK).json({
-        content: decryptText(secret.encrypted_content, secret.iv),
-        files: secret.files,
-        is_client_encrypted: secret.is_client_encrypted,
+        message: 'Secret retrieved successfully',
+        data: {
+            content: decryptText(secret.encrypted_content, secret.iv),
+            files: secret.files,
+            is_client_encrypted: secret.is_client_encrypted
+        }
     });
 });
 
@@ -104,7 +123,13 @@ const getSecretById = catchAsync(async (req, res) => {
  * @access  Private (authenticated users only)
  */
 const getUserSecrets = catchAsync(async (req, res) => {
-    const options = pick(req.query, ['page', 'limit', 'status', 'sortBy', 'search']);
+    const options = pick(req.query, [
+        'page',
+        'limit',
+        'status',
+        'sortBy',
+        'search'
+    ]);
     const result = await secretService.getUserSecrets(req.userId, options);
 
     res.status(httpStatus.default.OK).json({
@@ -158,8 +183,8 @@ const revokeSecret = catchAsync(async (req, res) => {
     });
 });
 
-module.exports = { 
-    getSecretById, 
+module.exports = {
+    getSecretById,
     createSecret,
     getUserSecrets,
     getUserStats,
