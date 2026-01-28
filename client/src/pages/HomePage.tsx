@@ -1,7 +1,10 @@
 import MainLayout from '../layouts/MainLayout';
 import { Button, Card, IconBox, GradientText } from '../components/common';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function HomePage() {
+    const { isAuthenticated } = useAuth();
+
     return (
         <MainLayout>
             <div className="w-full space-y-24 lg:space-y-32 justify-items-center">
@@ -19,13 +22,20 @@ export default function HomePage() {
                             to="/create"
                             variant="primary"
                             size="lg"
-                            className="shadow-2xl"
+                            className="shadow-2xl shadow-cyan-500/30 text-lg px-10 py-4"
                         >
-                            Create a Secret
+                            🔒 Create a Secret
                         </Button>
-                        <Button variant="secondary" size="lg">
-                            Learn More
-                        </Button>
+                        {!isAuthenticated && (
+                            <Button
+                                to="/register"
+                                variant="secondary"
+                                size="lg"
+                                className="text-lg px-10 py-4"
+                            >
+                                Sign Up Free
+                            </Button>
+                        )}
                     </div>
                 </div>
 
