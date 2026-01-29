@@ -4,6 +4,7 @@ import type {
     LoginRequest,
     ForgotPasswordRequest,
     ResetPasswordRequest,
+    ChangePasswordRequest,
     AuthResponse
 } from '../types';
 
@@ -192,6 +193,20 @@ class ApiService {
         if (!response.ok && response.status !== 204) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || 'Failed to reset password');
+        }
+    }
+
+    async changePassword(data: ChangePasswordRequest): Promise<void> {
+        const response = await fetch(`${this.baseURL}/auth/change-password`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            credentials: 'include',
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to change password');
         }
     }
 

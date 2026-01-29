@@ -84,6 +84,11 @@ export interface ResetPasswordRequest {
     password: string;
 }
 
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}
+
 export interface RefreshTokensRequest {
     refreshToken: string;
 }

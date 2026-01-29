@@ -102,6 +102,15 @@ export default function Header() {
                                         >
                                             My Secrets
                                         </Link>
+                                        <Link
+                                            to="/change-password"
+                                            onClick={() =>
+                                                setShowUserMenu(false)
+                                            }
+                                            className="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition-colors"
+                                        >
+                                            Change Password
+                                        </Link>
                                         <button
                                             onClick={handleLogout}
                                             disabled={isLoggingOut}

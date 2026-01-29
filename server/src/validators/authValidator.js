@@ -86,11 +86,29 @@ const resetPasswordSchema = {
     })
 };
 
+/**
+ * Validation schema for changing password (authenticated user)
+ * @type {Object}
+ * @property {import('zod').ZodObject} body - Request body schema
+ * @property {string} body.currentPassword - Current password
+ * @property {string} body.newPassword - New password (6-25 characters)
+ */
+const changePasswordSchema = {
+    body: z.strictObject({
+        currentPassword: z.string(),
+        newPassword: z
+            .string()
+            .min(6, 'Password must be at least 6 characters long')
+            .max(25, 'Password must be at most 25 characters long')
+    })
+};
+
 module.exports = {
     registerSchema,
     loginSchema,
     logoutSchema,
     refreshTokenSchema,
     forgotPasswordSchema,
-    resetPasswordSchema
+    resetPasswordSchema,
+    changePasswordSchema
 };

@@ -10,6 +10,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { MySecretsPage } from './pages/MySecretsPage';
+import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import './App.css';
 
 // No need to setup token getter anymore, tokens are in httpOnly cookies
@@ -35,6 +36,10 @@ function App() {
                         <Route
                             path="/reset-password"
                             element={<ResetPasswordPage />}
+                        />
+                        <Route
+                            path="/change-password"
+                            element={<ChangePasswordPage />}
                         />
                         <Route path="/my-secrets" element={<MySecretsPage />} />
                         <Route path="*" element={<NotFoundPage />} />
