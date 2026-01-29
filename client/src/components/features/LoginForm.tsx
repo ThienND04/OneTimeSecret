@@ -33,13 +33,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         setIsLoading(true);
 
         try {
-            console.log('[LoginForm] Calling login API...');
             const response = await apiService.login({ email, password });
-            console.log('[LoginForm] Login response:', response);
-            console.log('[LoginForm] User:', response.user);
-            console.log('[LoginForm] Tokens:', response.tokens);
             login(response.user, response.tokens);
-            console.log('[LoginForm] Context login() called');
 
             // Reset form
             setEmail('');

@@ -7,10 +7,7 @@
     "main": "src/index.js",
     "scripts": {
         "start": "NODE_ENV=production node src/index.js",
-        "dev": "NODE_ENV=development nodemon --inspect src/index.js",
-        "test": "NODE_ENV=test jest --detectOpenHandles",
-        "test:unit": "NODE_ENV=test jest tests/unit --detectOpenHandles",
-        "test:integration": "NODE_ENV=test jest tests/integration --detectOpenHandles --silent"
+        "dev": "NODE_ENV=development nodemon --inspect src/index.js"
     },
     "dependencies": {
         "bcrypt": "^6.0.0",

@@ -1,10 +1,5 @@
 # One Time Secret
 
-[![Tests](https://github.com/ThienND04/OneTimeSecret/actions/workflows/test.yml/badge.svg)](https://github.com/ThienND04/OneTimeSecret/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/ThienND04/OneTimeSecret/branch/master/graph/badge.svg)](https://codecov.io/gh/ThienND04/OneTimeSecret)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.x-brightgreen.svg)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 One Time Secret is a full-stack application that allows users to securely share sensitive information, such as passwords or private messages, that can only be accessed once.
 
 ## Table of Contents
@@ -20,15 +15,41 @@ One Time Secret is a full-stack application that allows users to securely share 
 
 ## Features
 
-- Create one-time readable secrets
-- Secrets are deleted after being accessed
-- Rate limiting and input validation
-- Optional file attachments (stored on Cloudinary)
-- Automatic cleanup files in readed secrets with scheduled jobs
-- Swagger-based API documentation
-- Modern React frontend with TypeScript
+### Secret Sharing
 
-## ⚙️ Tech Stack
+- **One-time access**: Secrets are automatically deleted after being viewed
+- **Password protection**: Optional password requirement for additional security
+- **File attachments**: Upload up to 3 files with each secret
+- **Custom titles**: Organize secrets with descriptive titles
+- **Auto-cleanup**: Automated removal of expired secrets and associated files
+
+### User Management
+
+- **User authentication**: Secure registration and login with JWT
+- **Session management**: HttpOnly cookies for secure token storage
+- **Password reset**: Email-based password recovery flow
+- **Change password**: Update password while logged in
+- **My Secrets**: View and manage all your created secrets
+- **Secret statistics**: Track viewed, unviewed, and revoked secrets
+
+### Security Features
+
+- Rate limiting and input validation
+- Bcrypt password hashing
+- AES-256 content encryption
+- CORS configuration
+- Secure cookie settings (httpOnly, sameSite, secure)
+- Request sanitization
+
+### User Experience
+
+- Modern, responsive React UI with Tailwind CSS
+- Real-time feedback and error handling
+- Loading states and skeleton screens
+- Dark mode interface
+- Mobile-friendly design
+
+## Tech Stack
 
 ### Backend (server/)
 
@@ -142,49 +163,6 @@ This project uses Swagger for interactive API documentation.
 
 - Swagger UI: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
-## Testing
-
-The project has comprehensive test coverage including unit tests and integration tests.
-
-### Run Tests
-
-```bash
-# Run all tests
-npm test
-
-# Run unit tests only
-npm run test:unit
-
-# Run integration tests only
-npm run test:integration
-
-# Run tests with coverage
-npm test -- --coverage
-```
-
-### Test Structure
-
-```
-server/tests/
-├── unit/                    # Unit tests
-│   ├── middlewares/        # Middleware tests
-│   ├── services/           # Service layer tests
-│   ├── utils/              # Utility function tests
-│   └── validators/         # Validation schema tests
-└── integration/            # Integration tests
-    ├── auth/              # Authentication API tests
-    └── secret/            # Secret API tests
-```
-
-### CI/CD
-
-- ✅ Automated tests run on every push and pull request
-- ✅ MongoDB service automatically provisioned in CI
-- ✅ Tests required to pass before merging to master
-- ✅ Coverage reports generated automatically
-
-See [CI/CD Setup Guide](docs/CI_CD_SETUP.md) for more details.
-
 ## Security Notes
 
 - Secrets are encrypted using crypto-js before storage.
@@ -195,21 +173,16 @@ See [CI/CD Setup Guide](docs/CI_CD_SETUP.md) for more details.
 
 ## Scripts
 
-| Script                     | Description                          |
-| -------------------------- | ------------------------------------ |
-| `npm run dev`              | Start backend server with hot reload |
-| `npm run dev:client`       | Start frontend development server    |
-| `npm run dev:all`          | Start both backend and frontend      |
-| `npm start`                | Start backend in production mode     |
-| `npm run build`            | Build frontend for production        |
-| `npm test`                 | Run all tests (unit + integration)   |
-| `npm run test:unit`        | Run unit tests only                  |
-| `npm run test:integration` | Run integration tests only           |
-| `npm run format`           | Format code with Prettier            |
+| Script               | Description                          |
+| -------------------- | ------------------------------------ |
+| `npm run dev`        | Start backend server with hot reload |
+| `npm run dev:client` | Start frontend development server    |
+| `npm run dev:all`    | Start both backend and frontend      |
+| `npm start`          | Start backend in production mode     |
+| `npm run build`      | Build frontend for production        |
+| `npm run format`     | Format code with Prettier            |
 
 ## Author
 
 Nguyen Duc Thien
 Github: https://github.com/ThienND04
-
-# Test prettier hook

@@ -47,14 +47,14 @@ router.post(
  * @swagger
  * tags:
  *   name: Auth
- *   description: Authentication
+ *   description: Authentication and user management endpoints
  */
 
 /**
  * @swagger
  * /auth/register:
  *   post:
- *     summary: Register as user
+ *     summary: Register a new user
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -63,28 +63,42 @@ router.post(
  *           schema:
  *             type: object
  *             required:
- *               - name
+ *               - userName
  *               - email
  *               - password
+ *               - gender
  *             properties:
- *               name:
+ *               userName:
  *                 type: string
+ *                 minLength: 3
+ *                 description: Username (minimum 3 characters)
  *               email:
  *                 type: string
  *                 format: email
- *                 description: must be unique
+ *                 description: Must be a valid and unique email
  *               password:
  *                 type: string
  *                 format: password
- *                 minLength: 8
- *                 description: At least one number and one letter
+ *                 minLength: 6
+ *                 maxLength: 25
+ *                 description: Password (6-25 characters)
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, helicopter]
+ *                 description: User gender
  *             example:
- *               name: fake name
- *               email: fake@example.com
- *               password: password1
+ *               userName: johndoe
+ *               email: john@example.com
+ *               password: password123
+ *               gender: male
  *     responses:
  *       "201":
- *         description: Created
+ *         description: User created successfully
+ *         headers:
+ *           Set-Cookie:
+ *             description: HttpOnly cookie containing refresh token
+ *             schema:
+ *               type: string
  *         content:
  *           application/json:
  *             schema:
@@ -93,16 +107,23 @@ router.post(
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
+ *                   type: object
+ *                   properties:
+ *                     access:
+ *                       $ref: '#/components/schemas/Token'
  *       "400":
- *         $ref: '#/components/responses/DuplicateEmail'
+ *         description: Validation error or duplicate email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 /**
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Login
+ *     summary: Login with email and password
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -121,11 +142,16 @@ router.post(
  *                 type: string
  *                 format: password
  *             example:
- *               email: fake@example.com
- *               password: password1
+ *               email: john@example.com
+ *               password: password123
  *     responses:
  *       "200":
- *         description: OK
+ *         description: Login successful
+ *         headers:
+ *           Set-Cookie:
+ *             description: HttpOnly cookie containing refresh token
+ *             schema:
+ *               type: string
  *         content:
  *           application/json:
  *             schema:
@@ -134,50 +160,65 @@ router.post(
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
+ *                   type: object
+ *                   properties:
+ *                     access:
+ *                       $ref: '#/components/schemas/Token'
  *       "401":
  *         description: Invalid email or password
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               code: 401
- *               message: Invalid email or password
  */
 
 /**
  * @swagger
  * /auth/logout:
  *   post:
- *     summary: Logout
+ *     summary: Logout (invalidate refresh token)
  *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
- *                 type: string
- *             example:
- *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+ *     description: Invalidates the refresh token stored in httpOnly cookie
  *     responses:
  *       "204":
- *         description: No content
- *       "404":
- *         $ref: '#/components/responses/NotFound'
+ *         description: Logout successful (no content)
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
  */
 
 /**
  * @swagger
  * /auth/refresh-tokens:
  *   post:
- *     summary: Refresh auth tokens
+ *     summary: Refresh authentication tokens
  *     tags: [Auth]
+ *     description: Uses refresh token from httpOnly cookie to generate new access token
+ *     responses:
+ *       "200":
+ *         description: New tokens generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 tokens:
+ *                   type: object
+ *                   properties:
+ *                     access:
+ *                       $ref: '#/components/schemas/Token'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     tags: [Auth]
+ *     description: Sends password reset email to user
  *     requestBody:
  *       required: true
  *       content:
@@ -185,21 +226,104 @@ router.post(
  *           schema:
  *             type: object
  *             required:
- *               - refreshToken
+ *               - email
  *             properties:
- *               refreshToken:
+ *               email:
  *                 type: string
+ *                 format: email
  *             example:
- *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+ *               email: john@example.com
  *     responses:
- *       "200":
- *         description: OK
+ *       "204":
+ *         description: Password reset email sent (if email exists)
+ *       "400":
+ *         description: Invalid email format
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AuthTokens'
+ *               $ref: '#/components/schemas/Error'
+ */
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password using token
+ *     tags: [Auth]
+ *     description: Resets password using token from email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - password
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Reset token from email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *                 maxLength: 25
+ *                 description: New password (6-25 characters)
+ *             example:
+ *               token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *               password: newPassword123
+ *     responses:
+ *       "204":
+ *         description: Password reset successful
  *       "401":
- *         $ref: '#/components/responses/Unauthorized'
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
+/**
+ * @swagger
+ * /auth/change-password:
+ *   post:
+ *     summary: Change password for authenticated user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: Current password
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *                 maxLength: 25
+ *                 description: New password (6-25 characters)
+ *             example:
+ *               currentPassword: oldPassword123
+ *               newPassword: newPassword456
+ *     responses:
+ *       "204":
+ *         description: Password changed successfully
+ *       "401":
+ *         description: Unauthorized or incorrect current password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 module.exports = router;
