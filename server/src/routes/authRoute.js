@@ -2,15 +2,46 @@ const express = require('express');
 const authController = require('../controllers/AuthController');
 const authValidator = require('../validators/authValidator');
 const validate = require('../middlewares/validate');
+const { authenticate } = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.post('/register', validate(authValidator.registerSchema), authController.register);
-router.post('/login', validate(authValidator.loginSchema), authController.login);
-router.post('/logout', validate(authValidator.logoutSchema), authController.logout);
-router.post('/refresh-tokens', validate(authValidator.refreshTokenSchema), authController.refreshToken);
-router.post('/forgot-password', validate(authValidator.forgotPasswordSchema), authController.forgotPassword);
-router.post('/reset-password', validate(authValidator.resetPasswordSchema), authController.resetPassword);
+router.post(
+    '/register',
+    validate(authValidator.registerSchema),
+    authController.register
+);
+router.post(
+    '/login',
+    validate(authValidator.loginSchema),
+    authController.login
+);
+router.post(
+    '/logout',
+    validate(authValidator.logoutSchema),
+    authController.logout
+);
+router.post(
+    '/refresh-tokens',
+    validate(authValidator.refreshTokenSchema),
+    authController.refreshToken
+);
+router.post(
+    '/forgot-password',
+    validate(authValidator.forgotPasswordSchema),
+    authController.forgotPassword
+);
+router.post(
+    '/reset-password',
+    validate(authValidator.resetPasswordSchema),
+    authController.resetPassword
+);
+router.post(
+    '/change-password',
+    authenticate,
+    validate(authValidator.changePasswordSchema),
+    authController.changePassword
+);
 
 /**
  * @swagger

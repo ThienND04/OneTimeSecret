@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Input, Button } from '../common';
 import { apiService } from '../../services/api';
@@ -125,8 +126,8 @@ export const ResetPasswordForm = ({ onSuccess }: ResetPasswordFormProps) => {
             <Button
                 type="submit"
                 variant="primary"
-                fullWidth
                 disabled={isLoading}
+                className="w-full"
             >
                 {isLoading ? 'Resetting...' : 'Reset Password'}
             </Button>

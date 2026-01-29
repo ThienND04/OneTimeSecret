@@ -154,11 +154,26 @@ const resetPassword = catchAsync(async (req, res) => {
     res.status(httpStatus.default.NO_CONTENT).send();
 });
 
+/**
+ * Change password for authenticated user
+ * @route POST /api/auth/change-password
+ * @access Private
+ * @param {import('express').Request} req - Express request with currentPassword and newPassword in body
+ * @param {import('express').Response} res - Express response
+ * @returns {Promise<void>} Returns 204 No Content
+ */
+const changePassword = catchAsync(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    await authService.changePassword(req.userId, currentPassword, newPassword);
+    res.status(httpStatus.default.NO_CONTENT).send();
+});
+
 module.exports = {
     register,
     login,
     logout,
     refreshToken,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    changePassword
 };

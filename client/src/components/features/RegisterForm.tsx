@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Input, Button } from '../common';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -149,8 +150,8 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
             <Button
                 type="submit"
                 variant="primary"
-                fullWidth
                 disabled={isLoading}
+                className="w-full"
             >
                 {isLoading ? 'Creating account...' : 'Create Account'}
             </Button>

@@ -15,8 +15,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Only store user info in localStorage, tokens are in httpOnly cookies
+// Storage keys
 const USER_STORAGE_KEY = 'auth_user';
+const TOKENS_STORAGE_KEY = 'auth_tokens';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     children
@@ -28,59 +29,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     // Initialize auth state - restore user and try to refresh tokens
     useEffect(() => {
         const initializeAuth = async () => {
-            console.log('[AuthContext] Initializing auth...');
             try {
                 const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-                console.log(
-                    '[AuthContext] Stored user:',
-                    storedUser ? 'Found' : 'Not found'
-                );
 
                 if (storedUser) {
-                    const parsedUser = JSON.parse(storedUser) as User;
-                    console.log(
-                        '[AuthContext] Parsed user:',
-                        parsedUser.userName
-                    );
-
                     // Try to refresh tokens using the httpOnly cookie
                     // This will restore the access token after page refresh
                     try {
-                        console.log(
-                            '[AuthContext] Attempting to refresh tokens...'
-                        );
                         const response = await apiService.refreshTokens();
-                        console.log(
-                            '[AuthContext] Refresh successful!',
-                            response
-                        );
                         // Update both user (in case profile changed) and tokens
                         setUser(response.user);
                         setTokens(response.tokens);
-                        // Update stored user info
+                        // Store user info and tokens
                         localStorage.setItem(
                             USER_STORAGE_KEY,
                             JSON.stringify(response.user)
                         );
-                        console.log('[AuthContext] User and tokens set');
+                        localStorage.setItem(
+                            TOKENS_STORAGE_KEY,
+                            JSON.stringify(response.tokens)
+                        );
                     } catch (error) {
                         // If refresh fails, clear user and require re-login
-                        console.error(
-                            '[AuthContext] Failed to refresh tokens on init:',
-                            error
-                        );
+                        console.error('Failed to refresh tokens:', error);
                         localStorage.removeItem(USER_STORAGE_KEY);
+                        localStorage.removeItem(TOKENS_STORAGE_KEY);
                         setUser(null);
+                        setTokens(null);
                     }
                 }
             } catch (error) {
-                console.error(
-                    '[AuthContext] Failed to initialize auth:',
-                    error
-                );
+                console.error('Failed to initialize auth:', error);
                 localStorage.removeItem(USER_STORAGE_KEY);
+                localStorage.removeItem(TOKENS_STORAGE_KEY);
             } finally {
-                console.log('[AuthContext] Setting isLoading to false');
                 setIsLoading(false);
             }
         };
@@ -89,23 +71,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }, []);
 
     const login = (user: User, tokens: AuthTokens) => {
-        console.log('[AuthContext] login() called with:', { user, tokens });
         setUser(user);
         setTokens(tokens);
-        // Only store user info, tokens are in httpOnly cookies managed by backend
+        // Store both user info and tokens
         localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-        console.log('[AuthContext] User stored in localStorage');
+        localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(tokens));
     };
 
     const logout = () => {
         setUser(null);
         setTokens(null);
         localStorage.removeItem(USER_STORAGE_KEY);
+        localStorage.removeItem(TOKENS_STORAGE_KEY);
     };
 
     const updateTokens = (newTokens: AuthTokens) => {
         setTokens(newTokens);
-        // No need to store in localStorage, tokens are in httpOnly cookies
+        // Store updated tokens
+        localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(newTokens));
     };
 
     const value: AuthContextType = {

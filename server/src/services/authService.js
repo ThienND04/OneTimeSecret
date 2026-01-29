@@ -14,13 +14,16 @@ const userService = require('./userService');
  * @throws {ApiError} 401 if credentials are invalid
  */
 const loginUser = async (email, password) => {
-    const user = await User.findOne({email: email.toLowerCase()});
+    const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user || !(await user.isPasswordMatch(password))) {
-        throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Incorrect email or password');
+        throw new ApiError(
+            httpStatus.default.UNAUTHORIZED,
+            'Incorrect email or password'
+        );
     }
     return user;
-}
+};
 
 /**
  * Logs out a user by invalidating their refresh token
@@ -29,12 +32,15 @@ const loginUser = async (email, password) => {
  * @throws {ApiError} 404 if refresh token not found
  */
 const logoutUser = async (refreshToken) => {
-    const refreshTokenDoc = await Token.findOne({ token: refreshToken, type: TokenType.REFRESH});
+    const refreshTokenDoc = await Token.findOne({
+        token: refreshToken,
+        type: TokenType.REFRESH
+    });
     if (!refreshTokenDoc) {
         throw new ApiError(httpStatus.default.NOT_FOUND, 'Not found');
     }
     await refreshTokenDoc.deleteOne();
-}
+};
 
 /**
  * Refreshes authentication tokens using a valid refresh token
@@ -44,7 +50,10 @@ const logoutUser = async (refreshToken) => {
  */
 const refreshAuth = async (refreshToken) => {
     try {
-        const refreshTokenDoc = await tokenService.verifyToken(refreshToken, TokenType.REFRESH);
+        const refreshTokenDoc = await tokenService.verifyToken(
+            refreshToken,
+            TokenType.REFRESH
+        );
         const user = await userService.getUserById(refreshTokenDoc.userId);
         if (!user) {
             throw new Error();
@@ -52,9 +61,12 @@ const refreshAuth = async (refreshToken) => {
         await refreshTokenDoc.deleteOne();
         return tokenService.generateAuthTokens(user);
     } catch (error) {
-        throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Please authenticate');
+        throw new ApiError(
+            httpStatus.default.UNAUTHORIZED,
+            'Please authenticate'
+        );
     }
-}
+};
 
 /**
  * Initiates password reset by sending reset token via email
@@ -72,7 +84,7 @@ const forgotPassword = async (email) => {
         // Log error for debugging but don't throw
         console.log('Password reset requested for non-existent email:', email);
     }
-}
+};
 
 /**
  * Resets user password using valid reset token
@@ -83,27 +95,65 @@ const forgotPassword = async (email) => {
  */
 const resetPassword = async (resetToken, newPassword) => {
     try {
-        const resetTokenDoc = await tokenService.verifyToken(resetToken, TokenType.RESET_PASSWORD);
+        const resetTokenDoc = await tokenService.verifyToken(
+            resetToken,
+            TokenType.RESET_PASSWORD
+        );
         const user = await userService.getUserById(resetTokenDoc.userId);
         if (!user) {
             throw new Error('User not found');
         }
-        
+
         // Update user password
         user.password = newPassword;
         await user.save();
-        
+
         // Delete all tokens for this user (logout from all devices)
         await Token.deleteMany({ userId: user.id });
     } catch (error) {
-        throw new ApiError(httpStatus.default.UNAUTHORIZED, 'Password reset failed. Token is invalid or expired');
+        throw new ApiError(
+            httpStatus.default.UNAUTHORIZED,
+            'Password reset failed. Token is invalid or expired'
+        );
     }
-}
+};
+
+/**
+ * Change password for authenticated user
+ * @param {string} userId - User ID from authenticated request
+ * @param {string} currentPassword - Current password
+ * @param {string} newPassword - New password
+ * @returns {Promise<void>}
+ * @throws {ApiError} 401 if current password is incorrect
+ */
+const changePassword = async (userId, currentPassword, newPassword) => {
+    const user = await userService.getUserById(userId);
+    if (!user) {
+        throw new ApiError(httpStatus.default.NOT_FOUND, 'User not found');
+    }
+
+    // Verify current password
+    const isPasswordMatch = await user.isPasswordMatch(currentPassword);
+    if (!isPasswordMatch) {
+        throw new ApiError(
+            httpStatus.default.UNAUTHORIZED,
+            'Current password is incorrect'
+        );
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    // Optionally: Delete all tokens except current session
+    // await Token.deleteMany({ userId: user.id });
+};
 
 module.exports = {
-    loginUser, 
+    loginUser,
     logoutUser,
     refreshAuth,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    changePassword
 };
