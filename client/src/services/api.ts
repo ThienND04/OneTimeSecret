@@ -8,6 +8,10 @@ import type {
     AuthResponse
 } from '../types';
 
+/**
+ * API Service for all backend communications
+ * Handles authentication, secrets management, and user operations
+ */
 class ApiService {
     private baseURL: string;
 
@@ -15,7 +19,11 @@ class ApiService {
         this.baseURL = `${API_URL}/api`;
     }
 
-    // Helper to get headers with auth token if available
+    /**
+     * Get request headers with authentication token if available
+     * @param includeContentType - Whether to include Content-Type header
+     * @returns Headers object with Authorization token if logged in
+     */
     private getHeaders(includeContentType = true): HeadersInit {
         const headers: HeadersInit = {};
 
@@ -34,15 +42,17 @@ class ApiService {
                 }
             }
         } catch (error) {
-            console.error(
-                'Failed to read auth token from localStorage:',
-                error
-            );
+            // Silently fail - will proceed without auth token
         }
 
         return headers;
     }
 
+    /**
+     * Create a new secret with optional password protection and file attachments
+     * @param data - Secret data including content, optional password, title, and files
+     * @returns Promise with created secret ID and access URL
+     */
     async createSecret(data: {
         content: string;
         password?: string;
@@ -75,10 +85,7 @@ class ApiService {
                 }
             }
         } catch (error) {
-            console.error(
-                'Failed to read auth token from localStorage:',
-                error
-            );
+            // Silently fail - will proceed without auth token
         }
 
         const response = await fetch(`${this.baseURL}/secret`, {

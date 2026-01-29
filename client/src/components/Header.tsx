@@ -17,7 +17,7 @@ export default function Header() {
         try {
             await apiService.logout();
         } catch (error) {
-            console.error('Logout error:', error);
+            // Silently handle logout error, proceed with client-side cleanup
         } finally {
             logout();
             setShowUserMenu(false);
