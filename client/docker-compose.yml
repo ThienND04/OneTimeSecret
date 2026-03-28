@@ -1,0 +1,10 @@
+version: '1.0.0'
+
+services: 
+    client: 
+        build: ./client
+        container_name: client-app
+        depends_on:
+            - server
+        ports:
+            - "4137:4137"
