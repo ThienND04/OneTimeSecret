@@ -49,3 +49,6 @@ coverage
 *.tmp
 .tmp
 tmp
+
+# Docker
+server/data

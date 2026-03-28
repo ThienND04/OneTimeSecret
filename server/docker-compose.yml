@@ -1,0 +1,27 @@
+version: '1.0.0'
+
+services: 
+    server:
+        build: .
+        container_name: app-name
+        depends_on:
+            - mongodb
+        ports:
+            - "3000:3000"
+        env_file:
+            - .env.production
+        restart: always
+
+    mongodb:
+        image: bitnami/mongodb:latest
+        container_name: mongodb-01
+        ports:
+            - "27017:27017"
+        environment:
+            MONGODB_ROOT_USER: ${MONGODB_ROOT_USER:-admin}
+            MONGODB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD:-admin1234}
+            MONGODB_USERNAME: ${MONGODB_USERNAME:-thien}
+            MONGODB_PASSWORD: ${MONGODB_PASSWORD:-thien1234}
+            MONGODB_DATABASE: ${MONGODB_DATABASE:-secretdb_dev}
+        volumes:
+            - ./data:/data/db
