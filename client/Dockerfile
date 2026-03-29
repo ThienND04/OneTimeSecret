@@ -1,24 +1,25 @@
 FROM node:22-slim AS builder
-
 WORKDIR /app
 
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-COPY . .
-RUN npm install
-
-FROM node:22-slim AS runner
+COPY package*.json ./
 
 WORKDIR /app
+RUN npm i --include=dev
 
-RUN groupadd --gid 1001 nextjs \
-    && useradd --uid 1001 --gid nextjs --shell /bin/bash --create-home nextjs
+COPY . .
+RUN npm run build
 
-COPY --from=builder --chown=nextjs:nextjs /app/node_modules ./node_modules
-COPY --chown=nextjs:nextjs . .
+FROM node:22-slim AS runner
+WORKDIR /app
 
-USER nextjs 
-EXPOSE 5173
+RUN npm install -g serve
 
-CMD ["npm", "run", "prod"]
+COPY --from=builder --chown=node:node /app/dist ./dist
+
+USER node
+EXPOSE 4173
+
+CMD ["sh", "-c", "serve -s dist -l ${PORT:-4173}"]
