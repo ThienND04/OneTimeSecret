@@ -13,14 +13,11 @@ RUN npm run build:prod
 FROM node:22-slim AS runner
 WORKDIR /app
 
-RUN groupadd --gid 1001 nodejs \
-    && useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nodejs
+RUN npm install -g serve
 
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/dist ./dist
 
-USER nodejs 
-EXPOSE 5173
+USER node
+EXPOSE 4173
 
-CMD ["npm", "run", "prod"]
+CMD ["sh", "-c", "serve -s dist -l ${PORT:-4173}"]
