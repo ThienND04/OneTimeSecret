@@ -4,12 +4,12 @@ WORKDIR /app
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-COPY client/package*.json ./client/
+COPY package*.json ./
 
-WORKDIR /app/client
+WORKDIR /app
 RUN npm ci --include=dev
 
-COPY client/ ./
+COPY . .
 RUN npm run build
 
 FROM node:22-slim AS runner
@@ -17,7 +17,7 @@ WORKDIR /app
 
 RUN npm install -g serve
 
-COPY --from=builder --chown=node:node /app/client/dist ./dist
+COPY --from=builder --chown=node:node /app/dist ./dist
 
 USER node
 EXPOSE 4173
