@@ -5,10 +5,10 @@ ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci --include=dev
 
 COPY . .
-RUN npm run build:prod
+RUN npm run build
 
 FROM node:22-slim AS runner
 WORKDIR /app
