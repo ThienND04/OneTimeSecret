@@ -2,7 +2,7 @@ version: '1.0.0'
 
 services: 
     client: 
-        build: ./client
+        build: ./
         container_name: client-app
         ports:
             - "4137:4137"
